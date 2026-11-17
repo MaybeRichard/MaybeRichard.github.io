@@ -1,0 +1,38 @@
+main{max-width:740px;margin:0 auto;padding:48px 22px 80px}
+.home{margin-bottom:1.6rem}
+h1{font:600 1.9rem/1.25 var(--sans);margin:0 0 .5rem}
+h2{font:600 1.2rem/1.3 var(--sans);margin:2.2rem 0 .6rem}
+h3{font:600 1.05rem/1.35 var(--sans);margin:1.8rem 0 .4rem}
+h4{font:700 .95rem var(--sans);margin:1.6rem 0 .3rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2)}
+.kicker{color:var(--muted);font:600 .8rem var(--sans);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.4rem}
+.kicker a{color:inherit;text-decoration:none}
+.kicker a:hover{color:var(--accent)}
+.byline{color:var(--muted);font:.92rem var(--sans);margin-bottom:2rem}
+.tldr{border-left:4px solid var(--ink2);background:#f6f6f3;padding:12px 16px;margin:1.4rem 0;border-radius:0 8px 8px 0}
+.tldr p{margin:.3rem 0}
+li{margin:.2rem 0}
+blockquote{margin:1rem 0;padding:8px 14px;border-left:3px solid #c9b8ee;background:#f6f2fd;color:#3d2f63;font:.92rem/1.5 var(--sans);border-radius:0 6px 6px 0}
+blockquote p{margin:.3rem 0}
+figure{margin:1.6rem 0}
+figure img{width:100%;height:auto;border:1px solid var(--rule);border-radius:4px}
+figcaption{color:var(--ink2);font-size:.88rem;margin-top:.4rem}
+img{max-width:100%}
+table{border-collapse:collapse;width:100%;font:.86rem var(--sans);margin:1rem 0;display:block;overflow-x:auto}
+th,td{padding:6px 9px;border-bottom:1px solid var(--rule);text-align:left}
+th{color:var(--ink2);font-weight:600}
+code{font-size:.84em;background:#f0efea;padding:1px 4px;border-radius:3px}
+pre{background:#f0efea;padding:12px 14px;border-radius:4px;overflow-x:auto;font-size:.82rem;line-height:1.45}
+pre code{background:none;padding:0;font-size:inherit}
+details{margin:1.2rem 0;padding:.8rem 1rem;border:1px solid var(--rule);border-radius:4px;background:#fff}
+summary{cursor:pointer;font:600 .95rem/1.5 var(--sans)}
+details[open]>summary{margin-bottom:.9rem}
+hr{border:none;border-top:1px solid var(--rule);margin:2rem 0}
+a.cite{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}
+a.cite:hover{color:var(--accent)}
+a.cite.missing{color:#c62828}
+ul.refs{padding-left:1.2rem;font-size:.95rem}
+ul.refs li:target{background:#fff3b0;border-radius:3px}
+.footnote{color:var(--ink2);font-size:.9rem;margin-top:2.4rem}
+.footnote hr{margin:1rem 0}
+.katex-display{overflow-x:auto;overflow-y:hidden}
+@media (max-width:520px){main{padding:28px 18px 56px}h1{font-size:1.6rem}}

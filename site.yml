@@ -1,0 +1,38 @@
+# ======== 网站设置 ========
+
+author: MaybeRichard                       # 你的名字，显示在首页和文章署名里
+url: https://mayberichard.github.io        # 网站地址（用于分享卡片和 RSS）
+lang: zh                                   # zh = 中文界面文字；en = 英文（和原博客一模一样）
+description: MaybeRichard 的个人主页和博客
+
+# 是否生成首页（/）。首页内容写在 about.md 里。
+# 如果你以后有自己的主页，改成 false，访问 / 会自动跳到 /blog/
+homepage: true
+
+# 博客列表页标题下的一句介绍（可选，支持 Markdown）
+blog_intro: ""
+
+# 首页上的链接（可选）
+links:
+  - title: GitHub
+    url: https://github.com/MaybeRichard
+  # - title: Google Scholar
+  #   url: https://scholar.google.com/...
+  # - title: Email
+  #   url: mailto:you@example.com
+
+# 系列文章。文章里写 series: <id> 和 part: <序号> 就会归到这里，
+# 并自动生成 /blog/<id>/ 的系列页面。
+series:
+  blog-notes:
+    title: 博客搭建笔记
+    short: 博客搭建笔记                      # 列表里小标签上显示的短名（可选）
+    description: 记录这个博客是怎么搭起来、怎么写的。
+
+# 发在别处的文章（可选），会显示在列表页的 “其他地方” 一栏
+elsewhere: []
+#  - title: 一篇发在别处的文章
+#    url: https://example.com/post
+#    date: 2026-10-01
+#    authors: [MaybeRichard, 合作者]
+#    description: 一句话简介
