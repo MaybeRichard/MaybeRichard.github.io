@@ -1,7 +1,7 @@
 ---
 title: 扩散模型合成图像用于数据增强的研究脉络与方法比较
 date: 2026-11-18
-summary: 基于 Zotero 中 87 篇纳入文献的个人阅读综述，梳理从 GAN 到扩散模型、从图像生成到任务反馈和数据集蒸馏的演进，并讨论结果可比性、失败模式与开源情况。
+summary: 基于 Zotero 中 90 篇纳入文献的个人阅读综述，梳理从 GAN 到扩散模型、从图像生成到任务反馈和数据集蒸馏的演进，并讨论结果可比性、失败模式与开源情况。
 tags: [扩散模型, 合成数据, 数据增强, 计算机视觉, 综述]
 tldr: 这批文献共同指向一个结论：合成数据的价值取决于它是否补上了下游模型真正缺失的变化因素。生成得更逼真只是必要条件，样本选择、标签一致性、分布覆盖和训练方式决定了最终收益。
 authors: [MaybeRichard]
@@ -15,7 +15,7 @@ authors: [MaybeRichard]
 
 从已有证据看，合成数据最稳定的角色是补充真实数据。医学影像系统综述显示，合成数据加入真实训练集通常带来小幅分类收益，分割收益更小。synthetic-only 训练通常落后于真实数据训练。生成数量增加会出现边际收益下降，选择、过滤和任务感知比单纯扩大数量更重要。
 
-![87 篇纳入文献的主任务分组](task-groups.svg)
+![90 篇纳入文献的主任务分组](task-groups.svg)
 
 <small>图中每篇文献按证据矩阵中的主任务分组计数。完整文献仍按方法和任务交叉阅读。</small>
 
@@ -127,11 +127,49 @@ UniDiffDA 的价值在于把这些变量拆开评估。医学系统综述则从�
 
 ## 6. 开源状况
 
-当前 87 条记录中，有 47 条正文出现 GitHub URL。这个数字包含依赖库和基础模型链接，因此需要进一步区分作者仓库、依赖项目和基础模型。能够明确识别为作者仓库的代表性项目包括 DiffDA-Eval、DBG、IMS3、DisCL、Diff-II、CORAL、DAR-GDA、DiffusingDeBias、MedDiff-FT、DataDream、DA-Fusion、DatasetExpansion、DIAGen、MGRAttn-RNO、D3S2、LDMLR、SynRep/SynCLR、TRCG、SFD-Polyp、Polyp-LDM、DiDGen、DiffAtlas、DiGDA、LoFT、S2RL 和 SFM。权重、生成数据和训练脚本并不总是同时提供。
+当前按 Zotero 中 90 个活动父条目统计，其中 47 条正文出现 GitHub URL。这个数字包含依赖库和基础模型链接，因此需要进一步区分作者仓库、依赖项目和基础模型。下面只把论文来源页或条目中明确指向的作者仓库列为“代码路径”。链接指向仓库根目录，进入仓库后的 `README`、`configs`、`scripts` 和训练入口通常能看到复现实验所需的具体命令。
+
+| 方法 | 作者代码路径 | 备注 |
+|:--|:--|:--|
+| DiffDA-Eval | [nukezil/DiffDA-Eval](https://github.com/nukezil/DiffDA-Eval) | 统一评测与复现实验 |
+| DBG | [keepdigitalabc-svg/DBG](https://github.com/keepdigitalabc-svg/DBG) | 决策边界生成 |
+| IMS3 | [Westlake-AGI-Lab/IMS3](https://github.com/Westlake-AGI-Lab/IMS3) | 扩散数据集蒸馏 |
+| Learnability Gap | [MischaD/LearnabilityGap](https://github.com/MischaD/LearnabilityGap) | 医学潜空间扩散分析 |
+| DisCL | [tianyi-lab/DisCL](https://github.com/tianyi-lab/DisCL) | 合成到真实的课程学习 |
+| Diff-II | [HKUST-LongGroup/Diff-II](https://github.com/HKUST-LongGroup/Diff-II) | 反演圆插值增广 |
+| CORAL | [SankarLab/coral-lt-diffusion](https://github.com/SankarLab/coral-lt-diffusion) | 长尾潜表示解耦 |
+| IGD-ML | [pranoydas51/IGD-ML](https://github.com/pranoydas51/IGD-ML) | 长尾生成建模 |
+| DAR-GDA | [ruyianry/gda-dar](https://github.com/ruyianry/gda-dar) | 蒸馏、对齐与重加权 |
+| Diffusing DeBias | [Malga-Vision/DiffusingDeBias](https://github.com/Malga-Vision/DiffusingDeBias) | 偏置放大与去偏 |
+| MedDiff-FT | [JianhaoXie1/MedDiff-FT](https://github.com/JianhaoXie1/MedDiff-FT) | 医学图像轻量微调 |
+| DataDream | [ExplainableML/DataDream](https://github.com/ExplainableML/DataDream) | 少样本数据集生成 |
+| Diff-Mix | [Zhicaiwww/Diff-Mix](https://github.com/Zhicaiwww/Diff-Mix) | 跨类别扩散混合 |
+| DA-Fusion | [brandontrabucco/da-fusion](https://github.com/brandontrabucco/da-fusion) | 图像条件扩散增广 |
+| GIF | [Vanint/DatasetExpansion](https://github.com/Vanint/DatasetExpansion) | 小规模数据集扩展 |
+| DIAGen | [visinf/DIAGen](https://github.com/visinf/DIAGen) | 生成式图像增广 |
+| MGRAttn-RNO | [hvcl/MGRAttn-RNO](https://github.com/hvcl/MGRAttn-RNO) | 参考注意力与排斥噪声 |
+| 病理图像 LDM-SSDA | [hsu-lab/ldm-pathology-ssda](https://github.com/hsu-lab/ldm-pathology-ssda) | 半监督域适配 |
+| SynRep / SynCLR | [google-research/syn-rep-learn](https://github.com/google-research/syn-rep-learn) | 合成表示学习 |
+| DiffAug | [oore-lab/diffaug](https://github.com/oore-lab/diffaug) | diffuse-and-denoise 增广 |
+| Free-Lunch | [zzzzj311-droid/Free-Lunch-SITN](https://github.com/zzzzj311-droid/Free-Lunch-SITN) | 跨域少样本检测 |
+| D3S2 | [zwj084/D3S2](https://github.com/zwj084/D3S2) | 语义分割数据集蒸馏 |
+| LDMLR | [AlvinHan123/LDMLR](https://github.com/AlvinHan123/LDMLR) | 长尾特征扩散 |
+| TRCGL-Net | [November-1113/TRCG](https://github.com/November-1113/TRCG) | 胸片长尾分类 |
+| SFD-Polyp | [zhaiying0925/SFD-](https://github.com/zhaiying0925/SFD-) | 息肉图像—掩码生成 |
+| EBIS | [VEDAs-Lab/EBIS](https://github.com/VEDAs-Lab/EBIS) | 烧伤分割与扩散教师 |
+| Polyp-LDM | [16rq/Polyp-LDM](https://github.com/16rq/Polyp-LDM) | 息肉边界对齐生成 |
+| DiDGen | [junjie-shentu/DiDGen](https://github.com/junjie-shentu/DiDGen) | 皮肤镜双任务生成 |
+| DiffAtlas | [M3DV/DiffAtlas](https://github.com/M3DV/DiffAtlas) | 图谱分割图像—掩码生成 |
+| DiGDA | [medipixel/DiGDA](https://github.com/medipixel/DiGDA) | 冠脉检测用户引导增广 |
+| LoFT | [ExplainableML/LoFT](https://github.com/ExplainableML/LoFT) | LoRA 少样本数据生成 |
+| S2-RL | [00why00/S2RL](https://github.com/00why00/S2RL) | 分割数据集蒸馏 |
+| SFM | [einsteinxia/SFM](https://github.com/einsteinxia/SFM) | 自监督数据集蒸馏 |
+
+部分论文只提供了基础模型或依赖库链接，例如 `diffusers`、`latent-diffusion`、`mmsegmentation`、`detectron2` 和 `FLUX`，不能据此判断论文作者实现已经公开。当前尚未定位到作者仓库的代表性方法包括 S3OD、DatasetDM、Fill-Up、Tail-SD、RealSynz、SaSPA、Chamfer Guidance、MRGen、C2I 和 DIVER。仓库是否包含预训练权重、生成数据和完整训练脚本，还需要以仓库当前内容为准。
 
 ## 7. 仍需补全文本的条目
 
-以下五条目前在 Zotero 中没有本地 PDF，文章中的方法和结果依据题目、摘要或出版页面，属于待补全文献。
+以下五条目前仍保留在 Zotero 中，但没有本地 PDF。文章中的方法和结果依据题目、摘要或出版页面，属于待补全文献。
 
 - Generative Active Learning via Bayesian Acquisition for Improving the Efficiency of Synthetic Data
 - Class-Mixed Diffusion Augmentation for Shortcut-Breaking in Continual Learning
@@ -150,6 +188,9 @@ UniDiffDA 的价值在于把这些变量拆开评估。医学系统综述则从�
 本页使用的主体证据来自 Zotero 本地 PDF 和条目中的论文来源链接。5 篇没有本地 PDF 的记录已经明确标注为“当前无本地 PDF”，它们在当前版本中作为待补全文献处理。正式接收、预印本、workshop 和 OpenReview 在审状态也按 Zotero 条目和来源页面分别保留。
 
 ## 参考文献
+
+<details class="references-fold">
+<summary>参考文献（点击展开）</summary>
 
 <ul class="refs">
 <li id="ref-bg-gan2014"><span class="ref-no">[1]</span> Goodfellow et al. (2014). <strong>Generative Adversarial Nets.</strong> <a href="https://arxiv.org/abs/1406.2661">来源</a></li>
@@ -246,3 +287,5 @@ UniDiffDA 的价值在于把这些变量拆开评估。医学系统综述则从�
 <li id="ref-2285"><span class="ref-no">[92]</span> <strong>DIVER: Diving Deeper into Distilled Data via Expressive Semantic Recovery</strong>（2026；数据集蒸馏、分类/识别；全文PDF已读取；<a href="https://proceedings.mlr.press/v306/xia26g.html">来源</a>）</li>
 <li id="ref-2287"><span class="ref-no">[93]</span> <strong>Efficient Dataset Distillation for Pre-Trained Self-Supervised Models via Statistical Flow Matching</strong>（2026；数据集蒸馏、表示学习；全文PDF已读取；<a href="https://arxiv.org/abs/2602.05391">来源</a>；<a href="https://github.com/einsteinxia/SFM.">代码/项目</a>）</li>
 </ul>
+</details>
+
