@@ -111,6 +111,34 @@ UniDiffDA 的价值在于把这些变量拆开评估。医学系统综述则从�
 | 医学 DiffAug | 医学分割 | 小息肉和扁平病灶的 false negative rate 最高降低 28%，推理约 12.5 samples/s | 文本引导、质量验证和快速潜变量估计共同影响结果 |
 | 医学影像系统综述 | 多种医学任务 | synthetic-only 通常有限，real+synthetic 的分类收益较小，分割收益更小 | 合成数据更像真实数据的补充 |
 
+
+## 4.1 数据集与结果的整体对照
+
+论文使用的数据集可以分成几组。分类增广主要集中在 CIFAR、ImageNet、CUB、Aircraft、Flowers 和少样本自然图像。长尾工作常用 ImageNet-LT、CIFAR-LT、LVIS 和专门的医学长尾数据。分割与图像—掩码生成更多使用 PASCAL VOC、COCO、ADE20K，以及 ISIC、BUSI、PH2、DDTI 等医学数据。表中的结果保留论文原始指标，不能把不同任务的数值拼成一个总排行榜。
+
+| 任务组 | 代表方法 | 主要数据集 | 论文报告的结果 | 比较时需要固定的因素 |
+|:--|:--|:--|:--|:--|
+| 分类与少样本 | TADA | CIFAR-10/100、TinyImageNet、ImageNet | 只增广训练早期未学到的 30%–40% 样本，最高提升 2.8 个百分点 | 真实数据量、增广比例和骨干 |
+| 分类与少样本 | BOB | 多个细粒度分类数据集 | 24 个设置中 18 个超过先前方法，14 个设置提升超过 2 个百分点 | shot 数、属性建模和 T2I 模型 |
+| 分类与少样本 | DA-Fusion | Leafy Spurge、COCO、PASCAL VOC | 在少样本分类和真实杂草识别任务上提升准确率 | 数据集构造和每类样本数 |
+| 分类与少样本 | DataDream | 10 个少样本分类数据集，包括 ImageNet few-shot | 7/10 个数据集超过先前方法，其余接近或相当 | LoRA 预算和 shot 数 |
+| 分类与细粒度 | Diff-Mix | CUB、FGVC-Aircraft、Flower | 在常规、少样本和长尾设置中稳定提升 | 类别粒度、生成倍数和下游训练策略 |
+| 分类与少样本 | DIAGen | 少标注分类与 OOD 设置 | 对 OOD 样本的收益比标准增广和 DA-Fusion 更明显 | OOD 定义和样本筛选权重 |
+| 分类与少样本 | MGRAttn-RNO | CUB-LT IF100、Flower-LT IF100 | 在 CUB-LT IF100 上最高提升 2.50 和 2.94 个百分点 | 不平衡比例和前景掩码质量 |
+| 长尾分类 | DisCL | ImageNet-LT、iWildCam | ImageNet-LT 尾类准确率从 4.40% 提升到 23.64%，整体从 35.80% 提升到 39.82%；iWildCam OOD F1 从 35.5 提升到 38.2 | many/medium/few 划分和域外测试集 |
+| 长尾分类 | DBG、CORAL、DiffuLT | ImageNet-LT、CIFAR-LT 等 | 重点改善尾类准确率、尾类生成质量和决策边界分离 | imbalance factor、采样预算和 backbone |
+| 长尾检测与分割 | Tail-SD、MRCA | COCO、LVIS、长尾实例分割基准 | Tail-SD 的 LVIS rare Box AP 提升 4.89，rare Mask AP 提升 5.68；MRCA 约用 6% 生成预算获得持续收益 | rare 类定义、实例预算和评测协议 |
+| 长尾医学分类 | TRCGL-Net | PadChest | tail mAP 0.4904，overall mAP 0.4408，mAUC 0.8989 | 多标签指标不能与单标签分类直接比较 |
+| 语义分割 | MatchMask | PASCAL VOC、COCO、ADE20K | PASCAL VOC mIoU 从 67.5% 提升到 74.3% | mask 对齐、标注稀缺比例和分割骨干 |
+| 图像—标注生成 | DatasetDM | PASCAL VOC 2012、COCO 2017 | VOC 提升 13.3 mIoU，COCO 提升 12.1 AP | 生成标注类型和下游模型 |
+| 显著性检测 | S3OD | DIS、HR-SOD | synthetic-only 跨数据集错误减少 20%–50% | 错误率与 mIoU、AP 不能混比 |
+| 医学图像—掩码生成 | MedDiff-FT | ISIC-2017/2018、BUSI、PH2、DDTI | 作者 README 报告 5 个分割任务平均提升约 3%，论文结果表需要按 Dice 口径复核 | 模态、器官和标注比例 |
+| 分割数据集蒸馏 | D3S2、S²-RL | ADE20K、COCO-Stuff、COCO | D3S2 在 1% 压缩率下 ADE20K/COCO-Stuff mIoU 为 24.99%/35.49%；S²-RL 使用 SegFormer-B5 评估 mIoU 和 mAcc | IPC、真实验证集和蒸馏预算 |
+| 表征学习 | StableRep、SynCLR | 合成图像规模学习、ImageNet、ADE20K | StableRep 用 20M 合成图像超过 50M 真实图像训练的 CLIP；SynCLR 在 ADE20K 上比 MAE、iBOT 高 5.0、3.1 mIoU | 预训练规模、语言监督和下游协议 |
+| 生成样本筛选 | Chamfer Guidance | 2 或 32 个真实 exemplar 的 few-shot 设置 | 2 exemplar 时 precision 96.4%、coverage 86.4%；32 exemplar 时 precision 97.5%、coverage 92.7%；下游 ID/OOD accuracy 最高提升 15/16% | 质量指标与下游效用需同时报告 |
+
+这些结果说明，合成数据的收益通常来自数据条件和任务模型的匹配。少样本分类更关注类内变化和分布贴合，长尾方法更关注尾类覆盖与决策边界，分割方法还必须验证图像和掩码的一致性。跨论文比较时应优先复现统一评测框架，再比较同一任务、同一数据预算和同一指标下的结果。
+
 ## 5. 局限和风险
 
 **语义和分布偏移。** 大型自然图像模型并不自动理解医学形态、传感器噪声或三维解剖结构。提示错误会生成漂亮但标签不对的图像。
