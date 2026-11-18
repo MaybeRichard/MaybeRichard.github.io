@@ -289,3 +289,20 @@ UniDiffDA 的价值在于把这些变量拆开评估。医学系统综述则从�
 </ul>
 </details>
 
+<script>
+(function () {
+  function openReference() {
+    var id = window.location.hash.slice(1);
+    var target = id ? document.getElementById(id) : null;
+    var box = target && target.closest('details');
+    if (box) box.open = true;
+  }
+  window.addEventListener('hashchange', openReference);
+  document.addEventListener('click', function (event) {
+    var link = event.target.closest('a[href^="#ref-"]');
+    if (link) window.setTimeout(openReference, 0);
+  });
+  window.addEventListener('DOMContentLoaded', openReference);
+})();
+</script>
+
