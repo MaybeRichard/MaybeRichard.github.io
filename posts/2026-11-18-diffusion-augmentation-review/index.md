@@ -15,21 +15,25 @@ authors: [MaybeRichard]
 
 从已有证据看，合成数据最稳定的角色是补充真实数据。医学影像系统综述显示，合成数据加入真实训练集通常带来小幅分类收益，分割收益更小。synthetic-only 训练通常落后于真实数据训练。生成数量增加会出现边际收益下降，选择、过滤和任务感知比单纯扩大数量更重要。
 
+![87 篇纳入文献的主任务分组](task-groups.svg)
+
+<small>图中每篇文献按证据矩阵中的主任务分组计数。完整文献仍按方法和任务交叉阅读。</small>
+
 ## 2. 发展脉络
 
 ### 2.1 2023：从生成图像走向生成训练数据
 
 <a href="#ref-2240">Azizi 等人的工作</a>把类条件扩散模型用于 ImageNet 数据生成，证明合成图像能够支持分类器训练。<a href="#ref-2162">GIF</a> 将问题表述为 dataset expansion，用少量真实图像引导 DALL-E 2 或 Stable Diffusion 生成新的带标签样本，同时指出 synthetic-only 仍然不如同规模真实数据。
 
-<a href="#ref-364">DiffuMask</a> 和 <a href="#ref-2166">DatasetDM</a> 将扩增对象从图像扩展到图像与感知标注。DiffuMask 观察文本条件扩散中的 cross-attention，利用它自动得到像素级语义掩码。DatasetDM 在扩散模型的 latent 上加入感知解码器，可以生成图像、语义分割、实例分割和深度等配对数据。论文报告的代表性结果是 VOC 语义分割提升 13.3 个 mIoU，COCO 实例分割提升 12.1 个 AP。<a href="#ref-2258">StableRep</a> 则把合成数据用于视觉表示学习，将同一个文本提示生成的多个图像作为正样本进行多正例对比学习。
+<a href="#ref-364">DiffuMask</a> 和 <a href="#ref-2166">DatasetDM</a> 将数据增广对象从图像扩展到图像与感知标注。DiffuMask 观察文本条件扩散中的 cross-attention，利用它自动得到像素级语义掩码。DatasetDM 在扩散模型的 latent 上加入感知解码器，可以生成图像、语义分割、实例分割和深度等配对数据。论文报告的代表性结果是 VOC 语义分割提升 13.3 个 mIoU，COCO 实例分割提升 12.1 个 AP。<a href="#ref-2258">StableRep</a> 则把合成数据用于视觉表示学习，将同一个文本提示生成的多个图像作为正样本进行多正例对比学习。
 
 ### 2.2 2024：控制保真度、多样性和少样本适配
 
-<a href="#ref-2158">DA-Fusion</a> 从真实图像编辑起点开展增广，起点位于真实图像而非纯噪声，使用文本变化描述控制颜色、材质和场景变化。这样可以更好地保留原图结构，也能处理预训练模型没有直接见过的概念。
+<a href="#ref-2158">DA-Fusion</a> 从真实图像编辑起点开展数据增广，起点位于真实图像而非纯噪声，使用文本变化描述控制颜色、材质和场景变化。这样可以更好地保留原图结构，也能处理预训练模型没有直接见过的概念。
 
-<a href="#ref-123">DiffuseMix</a> 使用条件提示重塑输入图像，再通过拼接和分形混合构造增广结果。<a href="#ref-2154">Diff-Mix</a> 进一步利用跨类别图像插值增加变化，明确处理 faithfulness 与 diversity 的平衡。<a href="#ref-2150">DataDream</a> 用少量真实样本对文本编码器和 U-Net 做 LoRA 微调，分别提供全数据集和逐类别的适配方式。它说明在 few-shot 条件下，轻量适配可以明显缩小生成分布和目标分布之间的差距。
+<a href="#ref-123">DiffuseMix</a> 使用条件提示重塑输入图像，再通过拼接和分形混合构造数据增广结果。<a href="#ref-2154">Diff-Mix</a> 进一步利用跨类别图像插值增加变化，明确处理 faithfulness 与 diversity 的平衡。<a href="#ref-2150">DataDream</a> 用少量真实样本对文本编码器和 U-Net 做 LoRA 微调，分别提供全数据集和逐类别的适配方式。它说明在 few-shot 条件下，轻量适配可以明显缩小生成分布和目标分布之间的差距。
 
-这一阶段还出现了两条并行路线。<a href="#ref-2238">DiffAug</a> 研究 diffuse-and-denoise 增广对鲁棒分类的作用，<a href="#ref-2260">SynCLR</a> 和 StableRep 把重点放在合成数据训练视觉表示。扩散模型开始从下游训练集的“附加样本生成器”变成预训练数据源。
+这一阶段还出现了两条并行路线。<a href="#ref-2238">DiffAug</a> 研究 diffuse-and-denoise 数据增广对鲁棒分类的作用，<a href="#ref-2260">SynCLR</a> 和 StableRep 把重点放在合成数据训练视觉表示。扩散模型开始从下游训练集的“附加样本生成器”变成预训练数据源。
 
 ### 2.3 2025—2026：任务感知、长尾和医学场景
 
@@ -47,7 +51,7 @@ authors: [MaybeRichard]
 
 ### 3.2 图像条件编辑
 
-输入一张真实图像，先反演或加噪，再在去噪过程中控制变化。它更容易保留标签和布局，适合分类增广和鲁棒性训练。DA-Fusion、DiffuseMix、Diff-II、DiffAug 和 1S-DAug 属于这一类。其主要代价是新颖性受输入图像限制，生成结果可能只是原图的低幅变化。
+输入一张真实图像，先反演或加噪，再在去噪过程中控制变化。它更容易保留标签和布局，适合分类数据增广和鲁棒性训练。DA-Fusion、DiffuseMix、Diff-II、DiffAug 和 1S-DAug 属于这一类。其主要代价是新颖性受输入图像限制，生成结果可能只是原图的低幅变化。
 
 ### 3.3 LoRA、Textual Inversion 和轻量适配
 
@@ -55,7 +59,7 @@ authors: [MaybeRichard]
 
 ### 3.4 任务模型反馈
 
-如果目标是改善分类器，就用分类器的梯度、边界或不确定性告诉生成器“还缺什么”。DBG 生成决策边界附近的样本，MRCA 让实例分割器寻找不确定目标，<a href="#ref-2190">C2I</a> 用分类梯度一致性构造奖励，<a href="#ref-2104">S3OD</a> 用扩散特征、概念注意力和 DINO 特征共同生成显著目标。它们通常比无目标的随机增广更有效，代价是反馈模型的偏差会进入生成过程。
+如果目标是改善分类器，就用分类器的梯度、边界或不确定性告诉生成器“还缺什么”。DBG 生成决策边界附近的样本，MRCA 让实例分割器寻找不确定目标，<a href="#ref-2190">C2I</a> 用分类梯度一致性构造奖励，<a href="#ref-2104">S3OD</a> 用扩散特征、概念注意力和 DINO 特征共同生成显著目标。它们通常比无目标的随机数据增广更有效，代价是反馈模型的偏差会进入生成过程。
 
 ### 3.5 长尾平衡和分布对齐
 
@@ -63,11 +67,18 @@ authors: [MaybeRichard]
 
 ### 3.6 图像—标注联合生成
 
-分割、检测和深度估计要求图像与标注保持一致。DiffuMask 通过注意力得到 mask，DatasetDM 用感知解码器生成多种标注，MatchMask、MRGen、DSD、Polyp-LDM、DiDGen、DiffAtlas、<a href="#ref-2246">D3S2</a> 和 <a href="#ref-2283">S2-RL</a> 则直接用 mask、layout、sketch 或双流扩散建模结构。对这些任务来说，FID 和人眼质量主要反映图像外观，标签可用性仍需单独验证。
+分割、检测和深度估计要求图像与标注保持一致。DiffuMask 通过注意力得到 mask，DatasetDM 用感知解码器生成多种标注。
+
+图像—掩码生成方法包括 <a href="#ref-2054">MatchMask</a>、<a href="#ref-2059">MRGen</a>、<a href="#ref-2039">Dual-Stream Diffusion</a>、<a href="#ref-2274">Polyp-LDM</a>、<a href="#ref-2035">DiDGen</a> 和 <a href="#ref-2276">DiffAtlas</a>。
+数据集蒸馏方法包括 <a href="#ref-2246">D3S2</a> 和 <a href="#ref-2283">S2-RL</a>，它们把结构条件纳入蒸馏过程。
+
+对这些任务来说，FID 和人眼质量主要反映图像外观，标签可用性仍需单独验证。
 
 ### 3.7 生成后筛选和数据集蒸馏
 
-生成后筛选成为降低噪声和成本的独立模块。<a href="#ref-2234">Chamfer Guidance</a> 用少量真实样本估计质量与多样性，<a href="#ref-2250">Post-Generation Curation</a> 将样本分成 homogeneous 和 heterogeneous 部分再打分，<a href="#ref-2182">BRIDGE</a> 用训练集内部的深度近邻距离寻找欠表示区域。<a href="#ref-2106">IMS3</a>、<a href="#ref-2108">EVLF</a>、D3S2、S2-RL、<a href="#ref-2285">DIVER</a> 和 <a href="#ref-2287">SFM</a> 则更进一步，把目标变成可用的极小合成数据集或蒸馏数据。
+生成后筛选成为降低噪声和成本的独立模块。<a href="#ref-2234">Chamfer Guidance</a> 用少量真实样本估计质量与多样性，<a href="#ref-2250">Post-Generation Curation</a> 将样本分成 homogeneous 和 heterogeneous 部分再打分，<a href="#ref-2182">BRIDGE</a> 用训练集内部的深度近邻距离寻找欠表示区域。
+
+数据集蒸馏方法包括 <a href="#ref-2106">IMS3</a>、<a href="#ref-2108">EVLF</a>、<a href="#ref-2246">D3S2</a>、<a href="#ref-2283">S2-RL</a>、<a href="#ref-2285">DIVER</a> 和 <a href="#ref-2287">SFM</a>，它们把目标变成可用的极小合成数据集或蒸馏数据。
 
 ## 4. 结果如何比较
 
@@ -130,7 +141,7 @@ UniDiffDA 的价值在于把这些变量拆开评估。医学系统综述则从�
 
 ## 8. 一句话总结
 
-扩散模型数据扩增正在从“生成更多图像”转向“生成对特定模型和特定缺口有用的图像”。下一步的关键在于建立可复现的任务效用评测、可靠的样本筛选、结构一致的标注生成和跨域外部验证。
+扩散模型数据增广正在从“生成更多图像”转向“生成对特定模型和特定缺口有用的图像”。下一步的关键在于建立可复现的任务效用评测、可靠的样本筛选、结构一致的标注生成和跨域外部验证。
 
 
 
