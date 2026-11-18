@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="872" viewBox="0 0 1080 872">
+<rect width="100%" height="100%" fill="#fbfaf7"/>
+<style>text{font-family:Arial,"Microsoft YaHei",sans-serif}</style>
+<text x="48" y="34" font-size="22" font-weight="700" fill="#1e293b">83条综述证据的三轴分布</text>
+<rect x="34" y="50" width="1012" height="308" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="58" y="84" font-size="18" font-weight="700" fill="#334155">按下游任务</text>
+<text x="310" y="139" text-anchor="end" font-size="14" fill="#334155">分类</text>
+<rect x="330" y="122" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="122" width="600.0" height="22" rx="5" fill="#2563eb"/>
+<text x="948" y="139" font-size="14" font-weight="700" fill="#1e293b">39</text>
+<text x="310" y="173" text-anchor="end" font-size="14" fill="#334155">目标检测</text>
+<rect x="330" y="156" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="156" width="30.8" height="22" rx="5" fill="#7c3aed"/>
+<text x="948" y="173" font-size="14" font-weight="700" fill="#1e293b">2</text>
+<text x="310" y="207" text-anchor="end" font-size="14" fill="#334155">分割与稠密预测</text>
+<rect x="330" y="190" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="190" width="369.2" height="22" rx="5" fill="#0f766e"/>
+<text x="948" y="207" font-size="14" font-weight="700" fill="#1e293b">24</text>
+<text x="310" y="241" text-anchor="end" font-size="14" fill="#334155">表征学习</text>
+<rect x="330" y="224" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="224" width="30.8" height="22" rx="5" fill="#d97706"/>
+<text x="948" y="241" font-size="14" font-weight="700" fill="#1e293b">2</text>
+<text x="310" y="275" text-anchor="end" font-size="14" fill="#334155">数据集蒸馏</text>
+<rect x="330" y="258" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="258" width="123.1" height="22" rx="5" fill="#dc2626"/>
+<text x="948" y="275" font-size="14" font-weight="700" fill="#1e293b">8</text>
+<text x="310" y="309" text-anchor="end" font-size="14" fill="#334155">综述与评测</text>
+<rect x="330" y="292" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="292" width="92.3" height="22" rx="5" fill="#64748b"/>
+<text x="948" y="309" font-size="14" font-weight="700" fill="#1e293b">6</text>
+<text x="310" y="343" text-anchor="end" font-size="14" fill="#334155">生成器与领域基础</text>
+<rect x="330" y="326" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="326" width="30.8" height="22" rx="5" fill="#0891b2"/>
+<text x="948" y="343" font-size="14" font-weight="700" fill="#1e293b">2</text>
+<rect x="34" y="392" width="1012" height="240" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="58" y="426" font-size="18" font-weight="700" fill="#334155">按数据条件</text>
+<text x="310" y="481" text-anchor="end" font-size="14" fill="#334155">少样本与数据稀缺</text>
+<rect x="330" y="464" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="464" width="550.0" height="22" rx="5" fill="#2563eb"/>
+<text x="948" y="481" font-size="14" font-weight="700" fill="#1e293b">22</text>
+<text x="310" y="515" text-anchor="end" font-size="14" fill="#334155">长尾与类别不平衡</text>
+<rect x="330" y="498" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="498" width="600.0" height="22" rx="5" fill="#7c3aed"/>
+<text x="948" y="515" font-size="14" font-weight="700" fill="#1e293b">24</text>
+<text x="310" y="549" text-anchor="end" font-size="14" fill="#334155">跨域与域偏移</text>
+<rect x="330" y="532" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="532" width="400.0" height="22" rx="5" fill="#0f766e"/>
+<text x="948" y="549" font-size="14" font-weight="700" fill="#1e293b">16</text>
+<text x="310" y="583" text-anchor="end" font-size="14" fill="#334155">标签稀缺与半监督</text>
+<rect x="330" y="566" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="566" width="175.0" height="22" rx="5" fill="#d97706"/>
+<text x="948" y="583" font-size="14" font-weight="700" fill="#1e293b">7</text>
+<text x="310" y="617" text-anchor="end" font-size="14" fill="#334155">持续学习与鲁棒性</text>
+<rect x="330" y="600" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="600" width="150.0" height="22" rx="5" fill="#dc2626"/>
+<text x="948" y="617" font-size="14" font-weight="700" fill="#1e293b">6</text>
+<rect x="34" y="666" width="1012" height="206" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+<text x="58" y="700" font-size="18" font-weight="700" fill="#334155">按方法阶段</text>
+<text x="310" y="755" text-anchor="end" font-size="14" fill="#334155">图像条件编辑</text>
+<rect x="330" y="738" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="738" width="566.7" height="22" rx="5" fill="#2563eb"/>
+<text x="948" y="755" font-size="14" font-weight="700" fill="#1e293b">17</text>
+<text x="310" y="789" text-anchor="end" font-size="14" fill="#334155">任务反馈生成</text>
+<rect x="330" y="772" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="772" width="200.0" height="22" rx="5" fill="#7c3aed"/>
+<text x="948" y="789" font-size="14" font-weight="700" fill="#1e293b">6</text>
+<text x="310" y="823" text-anchor="end" font-size="14" fill="#334155">图像—标注联合生成</text>
+<rect x="330" y="806" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="806" width="600.0" height="22" rx="5" fill="#0f766e"/>
+<text x="948" y="823" font-size="14" font-weight="700" fill="#1e293b">18</text>
+<text x="310" y="857" text-anchor="end" font-size="14" fill="#334155">生成后筛选</text>
+<rect x="330" y="840" width="600" height="22" rx="5" fill="#e2e8f0"/>
+<rect x="330" y="840" width="466.7" height="22" rx="5" fill="#d97706"/>
+<text x="948" y="857" font-size="14" font-weight="700" fill="#1e293b">14</text>
+<text x="48" y="854" font-size="12" fill="#64748b">主任务每篇只计一次；数据条件和方法阶段允许交叉归属。数据源：Zotero 三轴证据矩阵（2026-11-18）。</text></svg>
