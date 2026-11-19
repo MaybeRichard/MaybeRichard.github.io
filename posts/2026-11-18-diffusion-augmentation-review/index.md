@@ -1,15 +1,15 @@
 ---
 title: 扩散模型合成图像用于数据增强的研究脉络与方法比较
 date: 2026-11-18
-summary: 扩散模型数据增广正从“生成更多图像”转向“生成对下游任务有用的图像”。本文从 Zotero 候选库 169 篇中纳入 83 条直接相关证据（81 篇已读全文），按下游任务、数据条件和方法阶段三轴梳理 2023—2026 年的研究脉络，并比较代表性方法。
+summary: 扩散模型数据增广正从“生成更多图像”转向“生成对下游任务有用的图像”。本文在此前 Zotero 候选库基础上新增 9 篇全文证据，当前纳入 92 条直接相关证据（90 篇已读全文），按下游任务、数据条件和方法阶段三轴梳理 2023—2026 年的研究脉络，并比较代表性方法。
 tags: [扩散模型, 合成数据, 数据增强, 计算机视觉, 综述]
-tldr: 扩散模型数据增广正从“生成更多图像”转向“生成对特定模型、特定缺口有用的图像”；本文用任务、数据条件、方法阶段三条轴线梳理 83 篇文献，并比较这一转向中的代表方法。
+tldr: 扩散模型数据增广正从“生成更多图像”转向“生成对特定模型、特定缺口有用的图像”；本文用任务、数据条件、方法阶段三条轴线梳理 92 篇文献，并比较这一转向中的代表方法。
 authors: [MaybeRichard]
 ---
 
 ## 摘要
 
-扩散模型让“用生成图像扩充训练集”从个别数据集上的技巧，变成了覆盖分类、分割、检测和表征学习的通用手段。本文基于 Zotero 中 83 条与图像合成增广直接相关的文献（其中 81 篇读取了全文），梳理 2023—2026 年的研究脉络，并比较代表性方法。文献按三条可交叉的轴线组织：主任务决定评价指标，数据条件决定生成要补的缺口，方法阶段决定生成器如何接入训练流程。
+扩散模型让“用生成图像扩充训练集”从个别数据集上的技巧，变成了覆盖分类、分割、检测和表征学习的通用手段。本文基于 Zotero 中 92 条与图像合成增广直接相关的文献（其中 90 篇读取了全文），梳理 2023—2026 年的研究脉络，并比较代表性方法。文献按三条可交叉的轴线组织：主任务决定评价指标，数据条件决定生成要补的缺口，方法阶段决定生成器如何接入训练流程。
 
 研究重心经历了三次转移。2023 年的工作证明，合成图像本身可以作为训练数据。2024 年转向在少样本条件下兼顾保真度与多样性。2025—2026 年进入任务感知阶段：让下游模型的反馈引导生成，或在生成后筛选真正有用的样本，并扩展到长尾识别和医学稠密预测。
 
@@ -84,6 +84,8 @@ authors: [MaybeRichard]
 焦点转向合成样本的下游效用。<a href="#ref-2118">Diff-II</a> 在同类两张图的反演潜变量之间做圆形插值，再两阶段去噪，同时提高忠实度和多样性。<a href="#ref-2120">MRCA</a> 让实例分割器反过来指导扩散模型，多轮生成模型最不确定的对象。<a href="#ref-2098">DBG</a> 围绕决策边界生成样本。<a href="#ref-2122">CORAL</a> 发现长尾类别在 U-Net 潜空间中会与头部类别重叠，于是用对比正则解耦类别表征。<a href="#ref-2130">DAR-GDA</a> 用一步蒸馏、对抗对齐和重要性重加权同时处理采样效率和分布偏移。
 
 医学与稠密预测工作更关注结构一致性：<a href="#ref-2054">MatchMask</a>、<a href="#ref-2059">MRGen</a>、<a href="#ref-2039">Dual-Stream Diffusion</a>、<a href="#ref-2274">Polyp-LDM</a>、<a href="#ref-2035">DiDGen</a>、<a href="#ref-2276">DiffAtlas</a> 都同时以图像质量和下游分割效果为目标。评测也开始系统化：<a href="#ref-2090">UniDiffDA</a> 把方法拆成模型微调、样本生成、样本利用三部分，在通用、细粒度、长尾、跨域和医学分类上统一复现，发现结果强烈依赖任务和设置。<a href="#ref-2097">When More Data Hurts</a> 和 <a href="#ref-2194">Limitations in Data-Scarce Domains</a> 则开始系统追问“合成数据什么时候反而有害”。
+
+本轮新增的全文证据把这条线进一步分成四个互补问题。<a href="#ref-2290">When Pretty Isn't Useful</a> 在 13 个 2022—2025 年文生图模型上发现，视觉质量和提示词遵循能力提升并没有带来更好的真实测试集分类效果，反而伴随纹理、高频细节和分布覆盖的下降。<a href="#ref-2291">FROST</a> 和 <a href="#ref-2292">LSADA</a> 把下游训练状态接入筛选或生成过程，前者用真实梯度锚定合成样本效用，后者用样本损失和损失下降速度决定增强强度。<a href="#ref-2293">CCDM</a> 和 <a href="#ref-2294">SENSE</a> 分别把“合成数据是否有用”的问题推进到检测集合排序和分割标注分配。<a href="#ref-2295">Preserve the Hard</a> 则通过保留不确定区域、只重绘上下文来从构造上避免标签错位。另三篇工作补足了条件设计与强基线：<a href="#ref-2296">Augmented Conditioning</a> 用增强后的真实图像作为条件，<a href="#ref-2297">Closed-Set Equivalence</a> 量化闭集合成数据相对真实增广的规模折损，<a href="#ref-2298">The Unmet Promise</a> 证明针对任务检索真实图像是必须面对的强基线。
 
 ## 4. 方法详解与对比
 
@@ -166,6 +168,9 @@ authors: [MaybeRichard]
 | <a href="#ref-2272">EBIS</a> | 烧伤分割（半监督） | 教师模型的不确定性 | 合成图只进入教师路径，避免偏差传给学生 | 否 |
 | <a href="#ref-2279">DiGDA</a> | 冠脉狭窄检测 | 用户指定的严重程度 | 修复式生成病灶，平衡中重度样本 | 否 |
 | <a href="#ref-2242">Generative Active Learning</a> | 分类 | 贝叶斯采集函数 | 选择对训练最有效的合成样本 | — |
+| <a href="#ref-2291">FROST</a> | 分类 | 真实训练梯度与合成样本梯度的对齐度 | 在线批次门控 + 样本 IQR 过滤 | 否 |
+| <a href="#ref-2292">LSADA</a> | 分类 | 当前损失与损失下降速度 | 样本级增强强度 + 类相关/无关区域解耦扩散融合 | 否（使用冻结 SD 2.1） |
+| <a href="#ref-2295">Preserve the Hard</a> | 语义分割 | 像素预测熵 | 保留高不确定区域，扩散重绘其余上下文，合成像素设为 ignore | 否 |
 
 这些工作指向同一个结论：**最有用的样本是靠近决策边界、但仍在真实数据流形上的困难样本**。C2I 的梯度分析、DBG 的近边界生成、MRCA 的不确定性驱动都体现了这一点。代价是反馈模型的错误可能被闭环放大，<a href="#ref-2283">S2-RL</a> 的作者也承认其奖励只是下游效用的近似。
 
@@ -182,6 +187,7 @@ authors: [MaybeRichard]
 | <a href="#ref-351">DiffuLT</a> | 特征提取器剔除有害样本 | 训练中引导 | “近分布”样本对长尾识别最有价值 |
 | <a href="#ref-2236">SaSPA</a> | 预测置信度过滤 | 否 | 作者比较后认为 CLIP 过滤对细粒度概念不够敏感 |
 | <a href="#ref-2198">ISIC2019 长尾分类</a> | OOD 后筛选 | 否 | 保留真实且有临床意义的样本 |
+| <a href="#ref-2293">CCDM</a> | 按目标数量、框尺度和主类别分层的域匹配 | 否 | 不训练检测器也能按下游 mAP 排序候选合成集 |
 
 筛选与传统的数据选择研究是同一类思路，已有工作直接借鉴：<a href="#ref-116">TADA</a> 引用了 coreset 选择库 DeepCore，<a href="#ref-2190">C2I</a> 沿用了基于梯度的影响力估计。把 coreset、影响力函数、主动学习采集函数等方法系统地迁移到合成数据上，目前还缺少专门的评测。
 
@@ -364,6 +370,24 @@ authors: [MaybeRichard]
 
 整体来看，收益来自数据条件与任务模型的匹配：少样本分类看类内变化和分布贴合，长尾看尾类覆盖与决策边界，分割还必须验证图像与掩码的一致性。
 
+### 7.4 本轮新增九篇全文核对
+
+下面的表格只记录本轮新增的 9 篇，结果均来自论文正文或附录。数字保留论文原实验设置，不能拼成跨数据集总榜。
+
+| 论文 | 方法核心 | 数据集与任务 | 主要结果 | 局限性 | 开源情况 |
+|:--|:--|:--|:--|:--|:--|
+| <a href="#ref-2290">When Pretty Isn't Useful</a> | 比较 13 个开源文生图模型作为训练数据生成器，并用结构、纹理、频率和密度—覆盖分析解释 Synth→Real 落差；分类器训练采用 CFG=2.0。 | ImageNet-1K 200 类、每类 500 张合成训练图；ResNet-50，并用 ViT-Ti、ConvNeXt-Ti、Swin-Ti 检查架构趋势。 | 真实数据基线 ResNet-50 准确率 0.73；模型发布时间越新，真实测试集迁移准确率整体越低。结构和低频信息保留较好，纹理和高频细节退化；详细 caption 只能部分改善结构与覆盖。 | 只覆盖 ImageNet-1K 的 200 类和公开模型，结论对检测、分割、较大训练集及闭源模型仍需验证。 | [作者代码](https://github.com/Bill2462/When-Pretty-Isn-t-Useful-codebase)，已归档到 `outputs/synthetic_augmentation_archive_2026-11-19_complete/code/new_candidates_2026-11-19/When-Pretty-Isn-t-Useful-codebase`。 |
+| <a href="#ref-2291">FROST</a> | 用真实训练梯度的 EMA 作为锚点，对合成样本计算梯度对齐效用；先做批次门控，再对异常批次做样本级 IQR 过滤。 | CIFAR-100 分类；Spider 1.0 text-to-SQL；工业广告重排序。 | CIFAR-100 相比全量合成训练，FLUX、SANA、SD1.4 分别提升 0.58、0.65、1.14 个百分点；过滤约 20%–30% 合成数据。广告任务过滤 36% 后相对 NE 为 −0.096%，全量合成为 +0.211%。 | 梯度对齐是局部效用代理，不能保证长期收益；需要一批真实训练数据和在线梯度计算，吞吐下降约 6.8%（分类）和 5.7%（广告）。 | 论文未给出已确认的作者代码仓库。 |
+| <a href="#ref-2292">LSADA</a> | 用当前损失和损失下降速度构造 learning state，按样本决定增强强度；类相关区域做轻量变换，类无关区域用多样背景提示并在扩散过程中融合。 | 9 个小规模分类集：Caltech-101、CIFAR100-Subset、Stanford Cars、Flowers102、Oxford-IIIT Pets、DTD，以及 BreastMNIST、PathMNIST、OrganSMNIST。 | 相比 ActGen，6 个自然图像集平均提升 4.5 个百分点，3 个医学集平均提升 2.5 个百分点；DTD 和 Caltech-101 用 1× 生成量达到 ActGen 10× 的效果。 | 论文实验仍限于分类；作者将检测、语义分割、其他生成模型和模态列为后续方向。 | 论文未给出已确认的作者代码仓库。 |
+| <a href="#ref-2293">CCDM</a> | 将任意特征距离按目标数量、框尺度和主类别分层，并加入分层比例的 JSD 惩罚，训练检测器前直接评估候选集合。 | COCO train2017 的 10,000 张参考图和 val2017；VisDrone-DET；YOLOv8m 检测器。 | 在 20 个 COCO 候选集和 19 个 VisDrone 候选集上，最佳 CCDM 与 YOLOv8 mAP 的 Spearman ρ 为 0.98 和 0.96；伪标签参考仍为 0.936/0.965；筛选 20 个候选集约 6× 加速。 | 需要一个代表部署目标的参考集；依赖基础特征距离和元数据分层，参考集很小时分层统计会不稳定；未知部署域时不适合替代覆盖率导向的方法。 | 论文未给出已确认的作者代码仓库。 |
+| <a href="#ref-2294">SENSE</a> | 先分析场景密度和实例保真度，再用熵正则最优传输在像素空间全局分配合成标签，兼容 DPT 与 Mask2Former。 | Cityscapes、COCO、ADE20K 语义分割；DINOv2/DINOv3 主干。 | Cityscapes 上 DPT 单尺度最高 +2.54 mIoU、Mask2Former 多尺度 +1.59；COCO 与 ADE20K 也持续提升。合成数据量增加时 mIoU 继续上升，OT 标签分配在三个数据集上均优于不使用 OT。 | 对生成场景质量和教师标签仍有依赖，合成图像的密集场景与实例细节不足时收益下降；作者将生成—感知端到端反馈列为后续工作。 | [作者代码](https://github.com/zhang0jhon/SENSE)，已归档到 `outputs/synthetic_augmentation_archive_2026-11-19_complete/code/new_candidates_2026-11-19/SENSE`。 |
+| <a href="#ref-2295">Preserve the Hard</a> | 用分割器像素熵选择最不确定的语义区域，保留这些真实像素和标签，只对其余上下文做 SDXL inpainting；训练时对重绘像素使用 ignore mask。 | Cityscapes、UAVID、BDD100K 语义分割。 | 相对真实数据基线，UAVID、Cityscapes、BDD100K 分别提升 +3.68、+2.64、+1.57 mIoU，增益集中在少像素和稀有类别。 | 需要每轮运行分割器并使用 SDXL 级别 inpainter，计算成本由重绘主导；作者预计在医学域等 SDXL 先验较弱的领域收益会变小。 | [作者代码](https://github.com/XITASO/Preserve-the-Hard-Regenerate-the-Rest)，已归档到 `outputs/synthetic_augmentation_archive_2026-11-19_complete/code/new_candidates_2026-11-19/Preserve-the-Hard-Regenerate-the-Rest`。 |
+| <a href="#ref-2296">Augmented Conditioning</a> | 不微调扩散模型，把 CutMix、Mixup、Dropout 等增强后的真实图像与文本共同作为 LDM-v2.1-unCLIP 条件；最佳为 CLIP embedding 空间 CutMix+Dropout。 | ImageNet-LT 长尾分类；Caltech101、Flowers102、COCO、Pascal VOC 四个少样本分类集。 | ImageNet-LT 上 Embed-CutMix-Dropout 达到 59.6 overall、51.1 few，使用约 1.16M 合成图；90 类分析中 CFG=2.0 为 73.3%，CFG=10 为 66.9%。 | 预训练模型可能见过 ImageNet/COCO，存在训练数据记忆和泄漏风险；论文未给出已确认的作者代码仓库。 | 未找到作者代码仓库。 |
+| <a href="#ref-2297">Closed-Set Equivalence</a> | 在每个 base training set 上从头训练闭集 EDM/DiT，并与真实增广和开放集 SD3/CIFAKE 对照，拟合合成数据量相当于多少真实数据。 | BloodMNIST；CIFAR-10 的 1%、10%、50%、100% 子集；ImageNet-100 的多种 base size。 | 闭集合成增广在三个数据集都能提升分类，但达到同等收益需要更多合成图；固定 base size 后收益快速边际递减。CIFAR-10 上闭集 FID 8.33，明显低于开放集 27.15；ImageNet-100 则开放集更强。 | 等效关系是经验拟合、没有理论保证；实验受算力限制，数据集规模相对小，闭集模型在复杂 ImageNet-100 上仍有明显失真。 | 论文未给出已确认的作者代码仓库。 |
+| <a href="#ref-2298">The Unmet Promise</a> | 用同一 LAION-2B 上游来源比较 Stable Diffusion 1.5 生成的目标合成图与直接检索的目标真实图，控制适配数据规模并做 CLIP 微调。 | ImageNet-1K、DTD、FGVC-Aircraft、Stanford Cars、Oxford Flowers102 分类。 | FGVC-Aircraft 上 139K 合成图把线性探测从 64.9% 提到 68.7%，同规模检索真实图提高到 82.7%；DTD 合成图使 zero-shot 56.3%→59.6%。在 ImageNet、Cars、Flowers 等设置中合成图有时反而伤害 zero-shot；达到 15K 检索真实图效果需要约 500K 合成图。 | 检索基线依赖生成器上游数据可访问；若上游数据不可用，检索不可执行。合成图仍可能含生成伪影和类别细节错误。 | [作者代码](https://github.com/scottgeng00/unmet-promise)，已归档到 `outputs/synthetic_augmentation_archive_2026-11-19_complete/code/new_candidates_2026-11-19/unmet-promise`。 |
+
+这 9 篇共同补上了综述中原先缺少的三条证据链：视觉逼真度与训练效用并不等价，生成过程需要由任务反馈或条件设计约束，生成后必须用任务相关指标而不是只看 FID 来筛选。对分割而言，保留真实标签对应的困难区域，或通过最优传输重分配标签，是目前更直接的标签有效性控制方案。
+
 ## 8. 局限与开放问题
 
 ### 8.1 共同局限
@@ -379,6 +403,9 @@ authors: [MaybeRichard]
 | 越稀缺越难生效 | 极端稀缺时合成样本倾向于强化已有决策边界，而不是扩展到困难区域 | <a href="#ref-2194">Limitations in Data-Scarce Domains</a>；<a href="#ref-2118">Diff-II</a> 在不平衡因子达到 100 时增益下降 |
 | 评测与外部验证不足 | 多数只在少量公开数据集和单一骨干上验证；存在发表偏倚 | <a href="#ref-2130">DAR-GDA</a> 只在两个数据集上验证；<a href="#ref-2097">When More Data Hurts</a> 指出成功结果更容易发表 |
 | 隐私与记忆 | 生成器可能复现训练样本或放大数据偏见 | 收录文献多做最近邻检查，缺少用攻击方法的定量评估 |
+| 视觉质量与训练效用脱钩 | 更高的提示词遵循和审美评分可能伴随纹理、高频细节与覆盖下降 | <a href="#ref-2290">When Pretty Isn't Useful</a>；<a href="#ref-2298">The Unmet Promise</a> |
+| 任务效用筛选成本 | 逐候选训练下游模型太慢，代理指标又可能偏离长期收益 | <a href="#ref-2291">FROST</a>；<a href="#ref-2293">CCDM</a> |
+| 标签有效性控制 | 分割中重绘像素与原掩码可能错位，联合生成仍依赖标签分配 | <a href="#ref-2294">SENSE</a>；<a href="#ref-2295">Preserve the Hard</a> |
 
 ### 8.2 开放问题
 
@@ -388,6 +415,8 @@ authors: [MaybeRichard]
 4. **在哪个空间里生成**：像素、VAE 潜空间、基础模型表征空间、下游特征空间各有利弊，缺少系统比较。
 5. **合成掩码的解剖合理性验证**：目前只有保守扰动等局部方案，缺少通用的验证方法。
 6. **可复现的医学评测协议**：固定真实数据预算与生成预算、报告合成比例曲线和外部验证，并保证测试集与生成器数据隔离。
+7. **把检索真实图纳入默认强基线**：当生成器的上游数据可访问时，需要和同源真实图检索比较，才能判断生成步骤是否带来额外信息（<a href="#ref-2298">The Unmet Promise</a>）。
+8. **把视觉质量和训练效用分开报告**：CLIP、FID 或审美分数不能替代 Synth→Real、任务 mAP/mIoU 或梯度效用评测（<a href="#ref-2290">When Pretty Isn't Useful</a>；<a href="#ref-2293">CCDM</a>）。
 
 ## 9. 总结
 
@@ -398,7 +427,7 @@ authors: [MaybeRichard]
 <details markdown="1">
 <summary>A. 文献范围与统计口径（点击展开）</summary>
 
-本文的文献来自作者整理的 Zotero 文献库「合成图像用于数据增强」子集（169 篇候选记录），以及更广义的 Diffusion Model 子集（219 篇）中与图像合成增广直接相关的少量补充。最终纳入 83 条主体证据，其中 81 篇读取了全文 PDF；参考文献列表共 89 条，包括 6 条背景文献和 83 条主体记录。
+本文的文献来自作者整理的 Zotero 文献库「合成图像用于数据增强」子集，以及更广义的 Diffusion Model 子集中与图像合成增广直接相关的少量补充。本轮在此前主体证据上新增 9 篇，并逐篇读取摘要、正文和附录。当前纳入 92 条主体证据，其中 90 篇读取了全文 PDF；参考文献列表共 98 条，包括 6 条背景文献和 92 条主体记录。
 
 - 按质量筛选规则，Sensors 2026 的 Propose-and-Select，以及 ADuLTS、Synthetic Imagery 和 Triple-Prompt 未纳入核心统计。
 - 下游任务按单一主类统计：分类 39 条、目标检测 2 条、分割与稠密预测 24 条、表征学习 2 条、数据集蒸馏 8 条、综述与评测 6 条，另有 WILD-Diffusion、Sketch2CT 两条生成器与领域基础记录。
@@ -411,7 +440,7 @@ authors: [MaybeRichard]
 <details markdown="1">
 <summary>B. 开源代码（点击展开）</summary>
 
-下表列出论文来源页或正文中明确指向的作者代码仓库，共 33 个；其中 TRCGL-Net 和 SFD-Polyp 的链接目前返回 Repository not found。依赖库和基础模型的链接没有计入。仓库根目录下的 `README`、`configs`、`scripts` 和训练入口通常包含复现实验所需的命令。
+下表列出论文来源页或正文中明确指向的作者代码仓库，共 37 个；其中 TRCGL-Net 和 SFD-Polyp 的链接目前返回 Repository not found。本轮新增 4 个可确认仓库，另外 5 篇未找到作者仓库。依赖库和基础模型的链接没有计入。仓库根目录下的 `README`、`configs`、`scripts` 和训练入口通常包含复现实验所需的命令。
 
 | 方法 | 作者代码路径 | 备注 |
 |:--|:--|:--|
@@ -448,8 +477,12 @@ authors: [MaybeRichard]
 | LoFT | [ExplainableML/LoFT](https://github.com/ExplainableML/LoFT) | LoRA 少样本数据生成 |
 | S2-RL | [00why00/S2RL](https://github.com/00why00/S2RL) | 分割数据集蒸馏 |
 | SFM | [einsteinxia/SFM](https://github.com/einsteinxia/SFM) | 自监督数据集蒸馏 |
+| When Pretty Isn't Useful | [Bill2462/When-Pretty-Isn-t-Useful-codebase](https://github.com/Bill2462/When-Pretty-Isn-t-Useful-codebase) | CVPR 2026 评测代码 |
+| SENSE | [zhang0jhon/SENSE](https://github.com/zhang0jhon/SENSE) | 分割合成数据与 OT 标签分配 |
+| Preserve the Hard | [XITASO/Preserve-the-Hard-Regenerate-the-Rest](https://github.com/XITASO/Preserve-the-Hard-Regenerate-the-Rest) | 不确定性引导上下文重绘 |
+| The Unmet Promise | [scottgeng00/unmet-promise](https://github.com/scottgeng00/unmet-promise) | 检索真实图与合成图对照 |
 
-部分论文只提供了基础模型或依赖库链接，例如 `diffusers`、`latent-diffusion`、`mmsegmentation`、`detectron2` 和 `FLUX`，不能据此判断论文作者实现已经公开。当前尚未定位到作者仓库的代表性方法包括 S3OD、DatasetDM、Fill-Up、Tail-SD、RealSynz、SaSPA、Chamfer Guidance、MRGen、C2I 和 DIVER。仓库是否包含预训练权重、生成数据和完整训练脚本，还需要以仓库当前内容为准。
+部分论文只提供了基础模型或依赖库链接，例如 `diffusers`、`latent-diffusion`、`mmsegmentation`、`detectron2` 和 `FLUX`，不能据此判断论文作者实现已经公开。当前尚未定位到作者仓库的代表性方法包括 FROST、LSADA、CCDM、Augmented Conditioning、Closed-Set Equivalence、S3OD、DatasetDM、Fill-Up、Tail-SD、RealSynz、SaSPA、Chamfer Guidance、MRGen、C2I 和 DIVER。仓库是否包含预训练权重、生成数据和完整训练脚本，还需要以仓库当前内容为准。
 
 </details>
 
@@ -549,6 +582,15 @@ authors: [MaybeRichard]
 <li id="ref-2283"><span class="ref-no">[87]</span> <strong>S2-RL: Sample-Set Dual Reinforcement Learning for Generative Semantic Segmentation Dataset Distillation</strong>（2026；分割与稠密预测、数据集蒸馏；<a href="https://arxiv.org/abs/2610.35491">来源</a>；<a href="https://github.com/00why00/S2RL">代码/项目</a>；<a href="https://github.com/huggingface/diffusers">代码/项目</a>；<a href="https://github.com/open-mmlab/mmsegmentation">代码/项目</a>）</li>
 <li id="ref-2285"><span class="ref-no">[88]</span> <strong>DIVER: Diving Deeper into Distilled Data via Expressive Semantic Recovery</strong>（2026；数据集蒸馏、分类；<a href="https://proceedings.mlr.press/v306/xia26g.html">来源</a>）</li>
 <li id="ref-2287"><span class="ref-no">[89]</span> <strong>Efficient Dataset Distillation for Pre-Trained Self-Supervised Models via Statistical Flow Matching</strong>（2026；数据集蒸馏、表征学习；<a href="https://arxiv.org/abs/2602.05391">来源</a>；<a href="https://github.com/einsteinxia/SFM.">代码/项目</a>）</li>
+<li id="ref-2290"><span class="ref-no">[90]</span> <strong>When Pretty Isn't Useful: Investigating Why Modern Text-to-Image Models Fail as Reliable Training Data Generators</strong>（2026；CVPR；分类、生成器评测；<a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Adamkiewicz_When_Pretty_Isnt_Useful_Investigating_Why_Modern_Text-to-Image_Models_Fail_CVPR_2026_paper.pdf">来源</a>；<a href="https://github.com/Bill2462/When-Pretty-Isn-t-Useful-codebase">代码</a>）</li>
+<li id="ref-2291"><span class="ref-no">[91]</span> <strong>Let Training Guide Selection: Online Synthetic Data Filtering via Real-Anchored Utility (FROST)</strong>（2026；arXiv:2609.29988；分类、生成后筛选；<a href="https://arxiv.org/abs/2609.29988">来源</a>）</li>
+<li id="ref-2292"><span class="ref-no">[92]</span> <strong>Learning-State-Aware Dynamic Generative Data Augmentation on Small-Scale Datasets (LSADA)</strong>（2026；arXiv:2608.18907；分类、少样本与数据稀缺、任务反馈生成；<a href="https://arxiv.org/abs/2608.18907">来源</a>）</li>
+<li id="ref-2293"><span class="ref-no">[93]</span> <strong>Training-Free Metrics for Synthetic Object Detection Data: A Proxy for Detector Performance (CCDM)</strong>（2026；arXiv:2606.19817；目标检测、生成后筛选；<a href="https://arxiv.org/abs/2606.19817">来源</a>）</li>
+<li id="ref-2294"><span class="ref-no">[94]</span> <strong>What Makes Synthetic Data Effective in Image Segmentation (SENSE)</strong>（2026；ICML；分割与稠密预测；<a href="https://arxiv.org/abs/2605.19289">来源</a>；<a href="https://github.com/zhang0jhon/SENSE">代码</a>）</li>
+<li id="ref-2295"><span class="ref-no">[95]</span> <strong>Preserve the Hard, Regenerate the Rest: Uncertainty-Guided Synthetic Training Data Augmentation with Diffusion Models</strong>（2026；arXiv:2606.31603；分割与稠密预测、任务反馈生成；<a href="https://arxiv.org/abs/2606.31603">来源</a>；<a href="https://github.com/XITASO/Preserve-the-Hard-Regenerate-the-Rest">代码</a>）</li>
+<li id="ref-2296"><span class="ref-no">[96]</span> <strong>Augmented Conditioning Is Enough For Effective Training Image Generation</strong>（2025；arXiv:2502.04475；分类、长尾与少样本；<a href="https://arxiv.org/abs/2502.04475">来源</a>）</li>
+<li id="ref-2297"><span class="ref-no">[97]</span> <strong>Exploring the Equivalence of Closed-Set Generative and Real Data Augmentation in Image Classification</strong>（2025；arXiv:2508.09550；分类、少样本与数据稀缺；<a href="https://arxiv.org/abs/2508.09550">来源</a>）</li>
+<li id="ref-2298"><span class="ref-no">[98]</span> <strong>The Unmet Promise of Synthetic Training Images: Using Retrieved Real Images Performs Better</strong>（2024；NeurIPS；分类、生成后筛选与真实数据基线；<a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/0f25eb6e9dc26c933a5d7516abf1eb8c-Abstract-Conference.html">来源</a>；<a href="https://github.com/scottgeng00/unmet-promise">代码</a>）</li>
 </ul>
 </details>
 
