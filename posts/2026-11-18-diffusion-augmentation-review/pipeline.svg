@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="560" viewBox="0 0 1080 560">
+<rect width="100%" height="100%" fill="#fbfaf7"/>
+<style>text{font-family:Arial,"Microsoft YaHei",sans-serif}</style>
+<defs>
+<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
+<marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2563eb"/></marker>
+</defs>
+<text x="40" y="40" font-size="22" font-weight="700" fill="#1e293b">生成式数据增广的通用流水线：五个环节与一条反馈回路</text>
+<text x="40" y="66" font-size="14" fill="#64748b">一篇论文通常只在其中一两个环节上创新；读新论文时先确定它改的是哪个环节</text>
+
+<!-- row A -->
+<g>
+<rect x="40" y="96" width="310" height="140" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="60" y="128" font-size="18" font-weight="700" fill="#1e293b">① 生成器适配</text>
+<text x="60" y="156" font-size="14" fill="#334155">提示工程、文本反演、LoRA、领域预训练</text>
+<text x="60" y="180" font-size="14" fill="#334155">让生成器认识目标类别与目标域</text>
+<text x="60" y="214" font-size="13" fill="#64748b">DataDream · LoFT · ChimeraLoRA · MedDiff-FT</text>
+</g>
+<g>
+<rect x="385" y="96" width="310" height="140" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="405" y="128" font-size="18" font-weight="700" fill="#1e293b">② 条件控制</text>
+<text x="405" y="156" font-size="14" fill="#334155">类别 → 文本 → 结构 → 领域知识</text>
+<text x="405" y="180" font-size="14" fill="#334155">掩码、布局、边缘、元数据、报告文本</text>
+<text x="405" y="214" font-size="13" fill="#64748b">Tail-SD · MRGen · DiDGen · SaSPA</text>
+</g>
+<g>
+<rect x="730" y="96" width="310" height="140" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="750" y="128" font-size="18" font-weight="700" fill="#1e293b">③ 样本生成</text>
+<text x="750" y="156" font-size="14" fill="#334155">从噪声生成，或从真实图编辑</text>
+<text x="750" y="180" font-size="14" fill="#334155">图像与掩码、框等标注同步生成</text>
+<text x="750" y="214" font-size="13" fill="#64748b">DA-Fusion · Diff-Mix · DatasetDM · MatchMask</text>
+</g>
+
+<!-- row B (right to left) -->
+<g>
+<rect x="730" y="350" width="310" height="140" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="750" y="382" font-size="18" font-weight="700" fill="#1e293b">④ 生成后筛选</text>
+<text x="750" y="410" font-size="14" fill="#334155">质量 → 难度 → 分布覆盖</text>
+<text x="750" y="434" font-size="14" fill="#334155">不改生成器即可接入</text>
+<text x="750" y="468" font-size="13" fill="#64748b">Post-Generation Curation · Chamfer Guidance</text>
+</g>
+<g>
+<rect x="385" y="350" width="310" height="140" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="405" y="382" font-size="18" font-weight="700" fill="#1e293b">⑤ 利用方式</text>
+<text x="405" y="410" font-size="14" fill="#334155">混合比例、课程学习、重加权</text>
+<text x="405" y="434" font-size="14" fill="#334155">教师端隔离、测试时增强</text>
+<text x="405" y="468" font-size="13" fill="#64748b">DisCL · DAR-GDA · EBIS · 1S-DAug</text>
+</g>
+<g>
+<rect x="40" y="350" width="310" height="140" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<text x="60" y="382" font-size="18" font-weight="700" fill="#1e293b">下游模型</text>
+<text x="60" y="410" font-size="14" fill="#334155">分类、检测、分割、表征学习</text>
+<text x="60" y="434" font-size="14" fill="#334155">评估样本效用并回传信号</text>
+<text x="60" y="468" font-size="13" fill="#64748b">C2I · DBG · MRCA · S2-RL</text>
+</g>
+
+<!-- connectors -->
+<g fill="none" stroke="#64748b" stroke-width="1.6">
+<path d="M350 166H383" marker-end="url(#ar)"/>
+<path d="M695 166H728" marker-end="url(#ar)"/>
+<path d="M935 236V348" marker-end="url(#ar)"/>
+<path d="M730 420H697" marker-end="url(#ar)"/>
+<path d="M385 420H352" marker-end="url(#ar)"/>
+</g>
+<path d="M195 350V296H830V238" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arb)"/>
+<text x="220" y="286" font-size="14" fill="#1e40af">任务反馈：不确定性、价值分数、梯度影响力、强化学习奖励</text>
+<text x="40" y="530" font-size="13" fill="#64748b">实线为传统的开环流程；蓝色虚线为 2024 年后兴起的任务反馈生成，由下游模型决定“生成什么”。</text>
+</svg>
