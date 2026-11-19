@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="872" viewBox="0 0 1080 872">
 <rect width="100%" height="100%" fill="#fbfaf7"/>
 <style>text{font-family:Arial,"Microsoft YaHei",sans-serif}</style>
-<text x="48" y="34" font-size="22" font-weight="700" fill="#1e293b">83条综述证据的三轴分布</text>
+<text x="48" y="34" font-size="22" font-weight="700" fill="#1e293b">95条综述证据的三轴分布</text>
 <rect x="34" y="50" width="1012" height="308" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
 <text x="58" y="84" font-size="18" font-weight="700" fill="#334155">按下游任务</text>
 <text x="310" y="139" text-anchor="end" font-size="14" fill="#334155">分类</text>
 <rect x="330" y="122" width="600" height="22" rx="5" fill="#e2e8f0"/>
 <rect x="330" y="122" width="600.0" height="22" rx="5" fill="#2563eb"/>
-<text x="948" y="139" font-size="14" font-weight="700" fill="#1e293b">39</text>
+<text x="948" y="139" font-size="14" font-weight="700" fill="#1e293b">48</text>
 <text x="310" y="173" text-anchor="end" font-size="14" fill="#334155">目标检测</text>
 <rect x="330" y="156" width="600" height="22" rx="5" fill="#e2e8f0"/>
-<rect x="330" y="156" width="30.8" height="22" rx="5" fill="#7c3aed"/>
-<text x="948" y="173" font-size="14" font-weight="700" fill="#1e293b">2</text>
+<rect x="330" y="156" width="37.5" height="22" rx="5" fill="#7c3aed"/>
+<text x="948" y="173" font-size="14" font-weight="700" fill="#1e293b">3</text>
 <text x="310" y="207" text-anchor="end" font-size="14" fill="#334155">分割与稠密预测</text>
 <rect x="330" y="190" width="600" height="22" rx="5" fill="#e2e8f0"/>
-<rect x="330" y="190" width="369.2" height="22" rx="5" fill="#0f766e"/>
-<text x="948" y="207" font-size="14" font-weight="700" fill="#1e293b">24</text>
+<rect x="330" y="190" width="406.7" height="22" rx="5" fill="#0f766e"/>
+<text x="948" y="207" font-size="14" font-weight="700" fill="#1e293b">26</text>
 <text x="310" y="241" text-anchor="end" font-size="14" fill="#334155">表征学习</text>
 <rect x="330" y="224" width="600" height="22" rx="5" fill="#e2e8f0"/>
 <rect x="330" y="224" width="30.8" height="22" rx="5" fill="#d97706"/>
@@ -72,4 +72,4 @@
 <rect x="330" y="840" width="600" height="22" rx="5" fill="#e2e8f0"/>
 <rect x="330" y="840" width="466.7" height="22" rx="5" fill="#d97706"/>
 <text x="948" y="857" font-size="14" font-weight="700" fill="#1e293b">14</text>
-<text x="48" y="854" font-size="12" fill="#64748b">主任务每篇只计一次；数据条件和方法阶段允许交叉归属。数据源：Zotero 三轴证据矩阵（2026-11-18）。</text></svg>
+<text x="48" y="854" font-size="12" fill="#64748b">主任务每篇只计一次；数据条件和方法阶段允许交叉归属。数据源：Zotero 三轴证据矩阵（2026-11-19）。</text></svg>

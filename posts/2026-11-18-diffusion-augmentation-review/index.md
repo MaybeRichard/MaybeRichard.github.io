@@ -1,25 +1,25 @@
 ---
 title: 扩散模型合成图像用于数据增强的研究脉络与方法比较
 date: 2026-11-18
-summary: 扩散模型数据增广正从“生成更多图像”转向“生成对下游任务有用的图像”。本文在此前 Zotero 候选库基础上新增 9 篇全文证据，当前纳入 92 条直接相关证据（90 篇已读全文），按下游任务、数据条件和方法阶段三轴梳理 2023—2026 年的研究脉络，并比较代表性方法。
+summary: 扩散模型数据增广正从“生成更多图像”转向“生成对下游任务有用的图像”。本文在此前 Zotero 候选库基础上新增 12 篇证据，当前纳入 95 条直接相关证据（93 篇已读全文），按下游任务、数据条件和方法阶段三轴梳理 2023—2026 年的研究脉络，并比较代表性方法。
 tags: [扩散模型, 合成数据, 数据增强, 计算机视觉, 综述]
-tldr: 扩散模型数据增广正从“生成更多图像”转向“生成对特定模型、特定缺口有用的图像”；本文用任务、数据条件、方法阶段三条轴线梳理 92 篇文献，并比较这一转向中的代表方法。
+tldr: 扩散模型数据增广正从“生成更多图像”转向“生成对特定模型、特定缺口有用的图像”；本文用任务、数据条件、方法阶段三条轴线梳理 95 篇文献，并比较这一转向中的代表方法。
 authors: [MaybeRichard]
 ---
 
 ## 摘要
 
-扩散模型让“用生成图像扩充训练集”从个别数据集上的技巧，变成了覆盖分类、分割、检测和表征学习的通用手段。本文基于 Zotero 中 92 条与图像合成增广直接相关的文献（其中 90 篇读取了全文），梳理 2023—2026 年的研究脉络，并比较代表性方法。文献按三条可交叉的轴线组织：主任务决定评价指标，数据条件决定生成要补的缺口，方法阶段决定生成器如何接入训练流程。
+扩散模型让“用生成图像扩充训练集”从个别数据集上的技巧，变成了覆盖分类、分割、检测和表征学习的通用手段。本文基于 Zotero 中 95 条与图像合成增广直接相关的文献（其中 93 篇读取了全文），梳理 2023—2026 年的研究脉络，并比较代表性方法。文献按三条可交叉的轴线组织：主任务决定评价指标，数据条件决定生成要补的缺口，方法阶段决定生成器如何接入训练流程。
 
 研究重心经历了三次转移。2023 年的工作证明，合成图像本身可以作为训练数据。2024 年转向在少样本条件下兼顾保真度与多样性。2025—2026 年进入任务感知阶段：让下游模型的反馈引导生成，或在生成后筛选真正有用的样本，并扩展到长尾识别和医学稠密预测。
 
-比较结果显示，“生成什么”比“生成多少”更重要。只增强训练早期未学会的 30%–40% 样本，或只用约 6% 的生成预算，就能取得稳定收益。但各论文在真实数据量、生成器状态、筛选预算和混合方式上差异很大，指标不宜直接横向比较。文章最后归纳了六类风险，并提出下一步的关键：可复现的任务效用评测、可靠的样本筛选、结构一致的标注生成，以及跨域外部验证。
+比较结果显示，在真实数据预算、生成器和下游模型固定时，样本选择和标签有效性通常比单纯增加合成数量更关键。部分实验只增强训练早期未学会的 30%–40% 样本，或在特定 LVIS 设置中只用约 6% 的生成预算就取得收益。但各论文在真实数据量、生成器状态、筛选预算和混合方式上差异很大，指标不宜直接横向比较。文章最后归纳了六类风险，并提出下一步的关键：可复现的任务效用评测、可靠的样本筛选、结构一致的标注生成，以及跨域外部验证。
 
 **关键词**：扩散模型；合成数据；数据增强；长尾识别；少样本学习；医学图像分割；任务反馈生成；样本筛选
 
 ## 1. 引言
 
-深度模型依赖大规模、标注充分的数据，但在医学影像、细粒度识别、长尾类别和新场景检测中，真实样本和像素级标注都很昂贵。翻转、裁剪、颜色扰动等传统增强只能带来局部变化，无法改变物种、病灶形态、天气、背景这类语义属性。扩散模型（<a href="#ref-bg-ddpm2020">DDPM</a>、<a href="#ref-bg-ldm2022">LDM</a>）及其可控变体（<a href="#ref-bg-controlnet2023">ControlNet</a>）的成熟，让“按需生成训练数据”成为可行路线。与 <a href="#ref-bg-gan2014">GAN</a> 相比，扩散模型训练更稳定、样本多样性更高，这是近三年该方向几乎全面转向扩散模型的主要原因。
+深度模型依赖大规模、标注充分的数据，但在医学影像、细粒度识别、长尾类别和新场景检测中，真实样本和像素级标注都很昂贵。翻转、裁剪、颜色扰动等传统增强只能带来局部变化，无法改变物种、病灶形态、天气、背景这类语义属性。扩散模型（<a href="#ref-bg-ddpm2020">DDPM</a>、<a href="#ref-bg-ldm2022">LDM</a>）及其可控变体（<a href="#ref-bg-controlnet2023">ControlNet</a>）的成熟，让“按需生成训练数据”成为可行路线。与 <a href="#ref-bg-gan2014">GAN</a> 相比，扩散模型训练更稳定、样本多样性更高。在文本条件和图像条件的生成式数据增强中，扩散模型已经成为当前占主导地位的生成框架。
 
 然而，把生成图像直接加进训练集并不必然带来提升。合成图像可能标签不符、分布偏移、过于“典型”，在某些设置下甚至会降低性能（<a href="#ref-2097">When More Data Hurts</a>、<a href="#ref-2194">Limitations in Data-Scarce Domains</a>）。因此本文关心的核心问题是：**在什么数据条件下、生成什么样的样本、以什么方式使用，合成数据才能真正改善下游模型？**
 
@@ -71,11 +71,11 @@ authors: [MaybeRichard]
 
 <a href="#ref-2240">Azizi 等人的工作</a>把 Imagen 微调为类条件模型，在 ImageNet 上证明合成图像能够支持分类器训练，并发现微调和 guidance 权重的选择直接影响图像与标签的对齐。<a href="#ref-2162">GIF</a> 把问题表述为 dataset expansion，用少量真实图像引导 DALL-E 2 或 Stable Diffusion 生成新的带标签样本，同时指出纯合成数据仍不如同规模的真实数据。<a href="#ref-2262">Fake It Till You Make It</a> 只用类名就生成了 ImageNet 克隆，并观察到默认 guidance 下的图像细节丰富但缺乏多样性。
 
-<a href="#ref-364">DiffuMask</a> 和 <a href="#ref-2166">DatasetDM</a> 把增广对象从图像扩展到“图像 + 感知标注”。DiffuMask 利用文本条件扩散中的交叉注意力自动得到像素级掩码；DatasetDM 在扩散模型的潜特征上训练感知解码器，只需约 100 张标注图像就能生成语义分割、实例分割和深度等配对数据，报告 VOC 语义分割提升 13.3 mIoU、COCO 实例分割提升 12.1 AP。<a href="#ref-2258">StableRep</a> 则把合成数据用于表征学习，将同一提示生成的多张图像互为正样本做多正例对比学习。
+<a href="#ref-364">DiffuMask</a> 和 <a href="#ref-2166">DatasetDM</a> 把增广对象从图像扩展到“图像 + 感知标注”。DiffuMask 利用文本条件扩散中的交叉注意力自动得到像素级掩码；DatasetDM 在扩散模型的潜特征上训练感知解码器，只需约 100 张标注图像就能生成语义分割、实例分割和深度等配对数据。VOC 使用 100 张真实图像时，联合训练从 65.2 提升到 78.5 mIoU，纯合成训练为 73.7；COCO 使用 800 张真实图像加 80,000 张合成图像时提升 12.1 AP。<a href="#ref-2258">StableRep</a> 则把合成数据用于表征学习，将同一提示生成的多张图像互为正样本做多正例对比学习。
 
 ### 3.2 2024：控制保真度、多样性和少样本适配
 
-这一阶段的共同发现是：现成生成器的图“不像”目标数据，而用少量真实图微调又容易“太像”、缺乏变化。<a href="#ref-2158">DA-Fusion</a> 从真实图像出发，在去噪中途插入原图并用文本反演学到的概念 token 做编辑，可以处理预训练模型没见过的概念。<a href="#ref-123">DiffuseMix</a> 先用条件提示重绘输入图，再与原图拼接并混入分形纹理；<a href="#ref-2154">Diff-Mix</a> 在类别之间做图像翻译，按翻译强度给出软标签。<a href="#ref-2150">DataDream</a> 用少量真实样本对 U-Net 和文本编码器做 LoRA 微调，明显缩小了生成分布和目标分布的差距。
+这一阶段的共同发现是：现成生成器的图“不像”目标数据，而用少量真实图微调又容易“太像”、缺乏变化。<a href="#ref-2158">DA-Fusion</a> 从真实图像出发，在去噪中途插入原图并用文本反演学到的概念 token 做编辑，可以处理预训练模型没见过的概念。<a href="#ref-123">DiffuseMix</a> 先用条件提示重绘输入图，再与原图拼接并混入分形纹理；<a href="#ref-2154">Diff-Mix</a> 在类别之间做图像翻译，按翻译强度给出软标签。<a href="#ref-2150">DataDream</a> 用少量真实样本对 U-Net 和文本编码器做 LoRA 微调，明显缩小了生成分布和目标分布的差距。<a href="#ref-2299">DreamDA</a> 则在反演轨迹中扰动 U-Net 瓶颈，并用多头一致性和伪标签训练缓解标签漂移，在预训练和从头训练两种设置下都报告了较大增益。<a href="#ref-2300">DistDiff</a> 用类级和组级原型估计真实分布，再用分布感知能量引导扩散采样；<a href="#ref-2301">CBDM</a> 说明长尾分布会直接破坏尾类生成质量，需要在扩散训练中调整类别先验。
 
 同期还出现两条并行路线。<a href="#ref-2238">DiffAug</a> 只做一次加噪与一次去噪，就提升了分类器的协变量偏移鲁棒性；<a href="#ref-2260">SynCLR</a> 和 StableRep 把合成数据当作视觉预训练的数据源。扩散模型由此从“下游训练集的附加样本生成器”扩展为预训练数据源。
 
@@ -180,7 +180,7 @@ authors: [MaybeRichard]
 
 | 方法 | 打分依据 | 是否需重训生成器 | 主要发现 |
 |:--|:--|:--|:--|
-| <a href="#ref-116">TADA</a> | 训练早期按损失聚类，只对未学会的样本做生成 | 否（先选后生成） | 只增强 30%–40% 的样本即优于全量增强，最高提升 2.8 个百分点 |
+| <a href="#ref-116">TADA</a> | 训练早期按损失聚类，只对未学会的样本做生成 | 否（先选后生成） | CIFAR 与 TinyImageNet 目标样本约30%–40%；ImageNet约65%；COCO约75%；只增强目标样本即优于全量增强，最高提升 2.8 个百分点 |
 | <a href="#ref-2250">Post-Generation Curation</a> | 奖励语义对齐，惩罚生成器偏好的“典型模式”冗余 | 否 | 最多少用 40% 的合成样本就达到真实数据性能 |
 | <a href="#ref-2234">Chamfer Guidance</a> | 少量真实样例与合成集之间的 Chamfer 距离 | 否（采样时引导） | 只需 2 个真实样例 |
 | <a href="#ref-2254">SynBalance</a> | 数量、多样性、可识别度、域差 | 否 | 选择与长尾真实分布互补的子集 |
@@ -189,7 +189,7 @@ authors: [MaybeRichard]
 | <a href="#ref-2198">ISIC2019 长尾分类</a> | OOD 后筛选 | 否 | 保留真实且有临床意义的样本 |
 | <a href="#ref-2293">CCDM</a> | 按目标数量、框尺度和主类别分层的域匹配 | 否 | 不训练检测器也能按下游 mAP 排序候选合成集 |
 
-筛选与传统的数据选择研究是同一类思路，已有工作直接借鉴：<a href="#ref-116">TADA</a> 引用了 coreset 选择库 DeepCore，<a href="#ref-2190">C2I</a> 沿用了基于梯度的影响力估计。把 coreset、影响力函数、主动学习采集函数等方法系统地迁移到合成数据上，目前还缺少专门的评测。
+<a href="#ref-2291">FROST</a>、<a href="#ref-2293">CCDM</a>、<a href="#ref-2292">LSADA</a> 和 <a href="#ref-2294">SENSE</a> 还应单独看作“评测与筛选”路线。FROST 和 CCDM 直接估计候选样本或候选集合的下游效用，LSADA 用学习状态决定生成强度，SENSE 用场景密度、实例细节和最优传输判断分割数据是否值得使用。它们的核心贡献是回答“哪些合成数据有用”，不等同于只比较生成器图像质量。筛选与传统的数据选择研究是同一类思路，已有工作直接借鉴：<a href="#ref-116">TADA</a> 引用了 coreset 选择库 DeepCore，<a href="#ref-2190">C2I</a> 沿用了基于梯度的影响力估计。把 coreset、影响力函数、主动学习采集函数等方法系统地迁移到合成数据上，目前还缺少统一评测。
 
 ### 4.6 长尾：修正生成器，还是修正分类器
 
@@ -212,23 +212,30 @@ authors: [MaybeRichard]
 
 <a href="#ref-2098">DBG</a> 把两条线连了起来：它指出“头到尾迁移”虽然平衡了决策空间，却会把头部特征混进尾部类，这与 CORAL 发现的“特征借用”是同一现象的两面。目前的医学长尾工作（TRCGL-Net、ISIC2019 长尾分类等）多数仍停留在“给少数类多生成”，还没有吸收这些关于生成器偏差的发现。
 
-### 4.7 表征学习与数据集蒸馏
+### 4.7 表征学习、合成预训练与数据集蒸馏
 
-这两类工作的目标不是扩充某个下游任务的训练集：表征学习把合成图像当作预训练数据，数据集蒸馏则用生成模型把大数据集压缩成小而有效的合成集。
+这三类工作的目标需要分开。下游数据增强把合成样本加入某个任务的训练集，目标是提高真实测试集性能；合成数据预训练把合成图像当作通用表征学习的数据源；数据集蒸馏则用极少合成样本替代大数据集。三者的准确率、线性探测结果和压缩率不能直接放在同一张排行榜里。
 
-| 方法 | 目标 | 做法 | 代表结果 |
+| 类型 | 主要目标 | 典型评价 |
+|:--|:--|:--|
+| 下游数据增强 | 提高真实测试集性能 | Top-1、mAP、mIoU、Dice |
+| 合成数据预训练 | 用合成数据学习通用表征 | 线性探测、迁移性能 |
+| 数据集蒸馏 | 用极少合成样本替代大数据集 | IPC、压缩率、验证集性能 |
+
+| 方法 | 类型 | 做法 | 代表结果 |
 |:--|:--|:--|:--|
-| <a href="#ref-2258">StableRep</a> | 自监督表征 | 同一提示生成的多张图互为正样本 | 20M 合成图训练超过 50M 真实图训练的 CLIP |
-| <a href="#ref-2260">SynCLR</a> | 表征 | LLM 生成描述，文生图为每条描述生成多图，做对比学习 | ADE20K 上比 MAE、iBOT 高 5.0、3.1 mIoU |
-| <a href="#ref-2072">Scaling Laws</a> | 缩放规律分析 | 研究提示、CFG、生成模型类型对缩放的影响 | 训练 CLIP 接近真实图，训练监督分类器明显落后 |
-| <a href="#ref-2106">IMS3</a> | 数据集蒸馏 | 缓解扩散模型集中在高密度区域的问题，覆盖边界样本 | — |
-| <a href="#ref-2108">EVLF</a> | 数据集蒸馏 | 在编码器与解码器之间早期融合视觉与文本，避免提示主导 | — |
-| <a href="#ref-2246">D3S2</a> | 分割数据集蒸馏 | 类别平衡的掩码选择 + 布局到图像生成 | 1% 压缩率下 ADE20K 24.99%、COCO-Stuff 35.49% mIoU |
-| <a href="#ref-2283">S2-RL</a> | 分割数据集蒸馏 | GRPO 微调扩散策略，样本级与集合级双奖励 | — |
-| <a href="#ref-2285">DIVER</a> | 数据集蒸馏 | 语义继承、引导、融合，去除架构特定噪声 | — |
-| <a href="#ref-2287">SFM</a> | 自监督模型的数据集蒸馏 | 统计流匹配替代线性梯度匹配 | — |
+| <a href="#ref-2258">StableRep</a> | 合成预训练 | 同一提示生成的多张图互为正样本 | 20M 合成图训练超过 50M 真实图训练的 CLIP |
+| <a href="#ref-2260">SynCLR</a> | 合成预训练 | LLM 生成描述，文生图为每条描述生成多图，做对比学习 | ADE20K 上比 MAE、iBOT 高 5.0、3.1 mIoU |
+| <a href="#ref-2262">Fake It</a> | 合成预训练 | 扫描合成数据规模，分析预训练与下游迁移 | 在不同规模设置下比较合成预训练的迁移收益 |
+| <a href="#ref-2072">Scaling Laws</a> | 合成预训练 | 研究提示、CFG、生成模型类型对缩放的影响 | 训练 CLIP 接近真实图，训练监督分类器明显落后 |
+| <a href="#ref-2106">IMS3</a> | 数据集蒸馏 | 缓解扩散模型集中在高密度区域的问题，覆盖边界样本 | 以 IPC 和验证集性能评估 |
+| <a href="#ref-2108">EVLF</a> | 数据集蒸馏 | 在编码器与解码器之间早期融合视觉与文本，避免提示主导 | 以压缩率和验证集性能评估 |
+| <a href="#ref-2246">D3S2</a> | 数据集蒸馏 | 类别平衡的掩码选择 + 布局到图像生成 | 1% 压缩率下 ADE20K 24.99%、COCO-Stuff 35.49% mIoU |
+| <a href="#ref-2283">S2-RL</a> | 数据集蒸馏 | GRPO 微调扩散策略，样本级与集合级双奖励 | 以压缩率和验证集性能评估 |
+| <a href="#ref-2285">DIVER</a> | 数据集蒸馏 | 语义继承、引导、融合，去除架构特定噪声 | 以 IPC 和验证集性能评估 |
+| <a href="#ref-2287">SFM</a> | 数据集蒸馏 | 统计流匹配替代线性梯度匹配 | 面向预训练自监督模型的压缩评估 |
 
-数据集蒸馏与生成式增广本质上都是“按训练效用合成数据”，只是预算方向相反。蒸馏结果需要同时报告压缩比例、初始化方式和验证骨干，不能与普通增广的准确率直接比较。
+数据集蒸馏与生成式增广都按训练效用合成数据，只是预算方向相反。蒸馏结果需要同时报告压缩比例、初始化方式和验证骨干，不能与普通增广的准确率直接比较。
 
 ## 5. 应用对照：下游任务 × 数据条件
 
@@ -256,13 +263,13 @@ authors: [MaybeRichard]
 
 | 用途 | 数据集 | 规模与特点 | 代表方法 |
 |:--|:--|:--|:--|
-| 通用分类 | ImageNet-1K | 1.28M 训练图、50K 验证图、1000 类；合成规模实验的主战场 | <a href="#ref-2240">Azizi 等</a>（合成 1.2M–12M）、<a href="#ref-2072">Scaling Laws</a>（合成至约 4M）、<a href="#ref-2262">Fake It</a>、<a href="#ref-2234">Chamfer Guidance</a>、<a href="#ref-2130">DAR-GDA</a>、<a href="#ref-2238">DiffAug</a> |
-| 通用分类（小规模） | CIFAR-10/100、Tiny-ImageNet、ImageNet-100 | 便于快速实验和理论验证 | <a href="#ref-116">TADA</a>、<a href="#ref-2130">DAR-GDA</a>、<a href="#ref-123">DiffuseMix</a>、<a href="#ref-2250">Post-Generation Curation</a>、<a href="#ref-2256">开放集半监督扩散</a> |
-| 分布偏移测试 | ImageNet-V2/Sketch/R/A、ImageNet-C、Waterbirds、ImageNet-9、PACS、DomainNet | 只用于测试，不参与训练 | <a href="#ref-2072">Scaling Laws</a>、<a href="#ref-2238">DiffAug</a>、<a href="#ref-2234">Chamfer Guidance</a>、<a href="#ref-2134">Diffusing DeBias</a>、<a href="#ref-2154">Diff-Mix</a>、<a href="#ref-2252">Not Just Pretty Pictures</a> |
-| 细粒度与少样本 | CUB、FGVC-Aircraft、Stanford Cars、Oxford-IIIT Pets、Flowers102、DTD、EuroSAT、Caltech101、Food101、SUN397 | 少样本设置通常从官方训练集中每类抽 k 张 | <a href="#ref-2150">DataDream</a>、<a href="#ref-2281">LoFT</a>、<a href="#ref-2100">ChimeraLoRA</a>、<a href="#ref-2102">BOB</a>、<a href="#ref-2118">Diff-II</a>、<a href="#ref-2236">SaSPA</a>、<a href="#ref-2158">DA-Fusion</a>、<a href="#ref-2162">GIF</a> |
-| 长尾分类 | CIFAR-10/100-LT、ImageNet-LT、Places-LT、iNaturalist 2018、CUB-LT、Flower-LT、Food101-LT | 人为构造或天然长尾；按 many/medium/few 分组报告 | <a href="#ref-2170">Fill-Up</a>、<a href="#ref-351">DiffuLT</a>、<a href="#ref-276">LDMLR</a>、<a href="#ref-2122">CORAL</a>、<a href="#ref-2098">DBG</a>、<a href="#ref-2254">SynBalance</a>、<a href="#ref-2116">DisCL</a>、<a href="#ref-2178">MGRAttn-RNO</a>、<a href="#ref-2146">长尾食物分类</a> |
-| 检测与实例分割 | COCO、LVIS（rare/common/frequent）、跨域少样本检测基准（ArTaxOr、DIOR、UODD、Clipart1k、DeepFish、NEU-DET）、nuScenes、DIS-5K 等显著性基准 | 检测证据最少，基准分散 | <a href="#ref-2186">Tail-SD</a>、<a href="#ref-2120">MRCA</a>、<a href="#ref-2244">Free-Lunch</a>、<a href="#ref-2248">FrozenDrive</a>、<a href="#ref-2104">S3OD</a> |
-| 语义分割 | PASCAL VOC 2012、ADE20K、COCO / COCO-Stuff、Cityscapes、LoveDA（遥感） | 少标注设置常按比例取 VOC 训练集 | <a href="#ref-364">DiffuMask</a>、<a href="#ref-2166">DatasetDM</a>、<a href="#ref-2054">MatchMask</a>、<a href="#ref-2246">D3S2</a>、<a href="#ref-2283">S2-RL</a>、<a href="#ref-2214">长尾遥感分割</a> |
+| 通用分类 | ImageNet-1K | 1.28M 训练图、50K 验证图、1000 类；合成规模实验的主战场 | <a href="#ref-2240">Azizi 等</a>（合成 1.2M–12M）、<a href="#ref-2072">Scaling Laws</a>（合成至约 4M）、<a href="#ref-2262">Fake It</a>、<a href="#ref-2234">Chamfer Guidance</a>、<a href="#ref-2130">DAR-GDA</a>、<a href="#ref-2238">DiffAug</a>、<a href="#ref-2290">When Pretty</a>、<a href="#ref-2298">The Unmet Promise</a> |
+| 通用分类（小规模） | CIFAR-10/100、Tiny-ImageNet、ImageNet-100 | 便于快速实验和理论验证 | <a href="#ref-116">TADA</a>、<a href="#ref-2130">DAR-GDA</a>、<a href="#ref-123">DiffuseMix</a>、<a href="#ref-2250">Post-Generation Curation</a>、<a href="#ref-2256">开放集半监督扩散</a>、<a href="#ref-2291">FROST</a>、<a href="#ref-2292">LSADA</a>、<a href="#ref-2297">Closed-Set Equivalence</a> |
+| 分布偏移测试 | ImageNet-V2/Sketch/R/A、ImageNet-C、Waterbirds、ImageNet-9、PACS、DomainNet | 只用于测试，不参与训练 | <a href="#ref-2072">Scaling Laws</a>、<a href="#ref-2238">DiffAug</a>、<a href="#ref-2234">Chamfer Guidance</a>、<a href="#ref-2134">Diffusing DeBias</a>、<a href="#ref-2154">Diff-Mix</a>、<a href="#ref-2252">Not Just Pretty Pictures</a>、<a href="#ref-2290">When Pretty</a>、<a href="#ref-2298">The Unmet Promise</a> |
+| 细粒度与少样本 | CUB、FGVC-Aircraft、Stanford Cars、Oxford-IIIT Pets、Flowers102、DTD、EuroSAT、Caltech101、Food101、SUN397 | 少样本设置通常从官方训练集中每类抽 k 张 | <a href="#ref-2150">DataDream</a>、<a href="#ref-2299">DreamDA</a>、<a href="#ref-2300">DistDiff</a>、<a href="#ref-2281">LoFT</a>、<a href="#ref-2100">ChimeraLoRA</a>、<a href="#ref-2102">BOB</a>、<a href="#ref-2118">Diff-II</a>、<a href="#ref-2236">SaSPA</a>、<a href="#ref-2158">DA-Fusion</a>、<a href="#ref-2162">GIF</a>、<a href="#ref-2298">The Unmet Promise</a> |
+| 长尾分类 | CIFAR-10/100-LT、ImageNet-LT、Places-LT、iNaturalist 2018、CUB-LT、Flower-LT、Food101-LT | 人为构造或天然长尾；按 many/medium/few 分组报告 | <a href="#ref-2170">Fill-Up</a>、<a href="#ref-351">DiffuLT</a>、<a href="#ref-276">LDMLR</a>、<a href="#ref-2122">CORAL</a>、<a href="#ref-2098">DBG</a>、<a href="#ref-2254">SynBalance</a>、<a href="#ref-2116">DisCL</a>、<a href="#ref-2178">MGRAttn-RNO</a>、<a href="#ref-2146">长尾食物分类</a>、<a href="#ref-2301">CBDM</a>、<a href="#ref-2296">Augmented Conditioning</a> |
+| 检测与实例分割 | COCO、LVIS（rare/common/frequent）、跨域少样本检测基准（ArTaxOr、DIOR、UODD、Clipart1k、DeepFish、NEU-DET）、nuScenes、DIS-5K 等显著性基准 | 检测证据最少，基准分散 | <a href="#ref-2186">Tail-SD</a>、<a href="#ref-2120">MRCA</a>、<a href="#ref-2244">Free-Lunch</a>、<a href="#ref-2248">FrozenDrive</a>、<a href="#ref-2104">S3OD</a>、<a href="#ref-2293">CCDM</a> |
+| 语义分割 | PASCAL VOC 2012、ADE20K、COCO / COCO-Stuff、Cityscapes、LoveDA（遥感） | 少标注设置常按比例取 VOC 训练集 | <a href="#ref-364">DiffuMask</a>、<a href="#ref-2166">DatasetDM</a>、<a href="#ref-2054">MatchMask</a>、<a href="#ref-2246">D3S2</a>、<a href="#ref-2283">S2-RL</a>、<a href="#ref-2214">长尾遥感分割</a>、<a href="#ref-2294">SENSE</a>、<a href="#ref-2295">Preserve the Hard</a> |
 | 表征学习 | CC12M、RedCaps 等图文描述；下游用 ImageNet 线性探测、9 个细粒度数据集、ADE20K | 合成规模可达上亿张 | <a href="#ref-2258">StableRep</a>、<a href="#ref-2260">SynCLR</a> |
 | 数据集蒸馏 | ImageNet-1K 及其子集（ImageNette、ImageWoof、ImageIDC 等） | 按每类保留张数（IPC）或全局压缩率报告 | <a href="#ref-2106">IMS3</a>、<a href="#ref-2108">EVLF</a>、<a href="#ref-2285">DIVER</a>、<a href="#ref-2287">SFM</a> |
 
@@ -278,7 +285,7 @@ authors: [MaybeRichard]
 | 腹部 CT/MRI | 3D-IRCADb-01、CHAOS、MSD、MRGen-DB | 器官与病灶分割、跨模态生成 | 3D-IRCADb 按患者划分；MRGen-DB 含 6,384 个体数据、245,082 张切片 | <a href="#ref-2039">Dual-Stream Diffusion</a>、<a href="#ref-2059">MRGen</a>、<a href="#ref-2114">Sketch2CT</a>（8:2 划分） |
 | 胸部 X 光 | PadChest、NIH ChestX-ray14、MIMIC-LT | 长尾多标签分类、稀有病变分类 | PadChest 超过 16 万张，按患者 80% / 20%；ChestX-ray14 实验只用约 50 张阳性样本做 LoRA | <a href="#ref-2268">TRCGL-Net</a>、<a href="#ref-2202">Few-Shot Synthetic Data</a>、<a href="#ref-2112">The Learnability Gap</a> |
 | 病理 | NLST、TCGA 肺腺癌 WSI | 生长模式分类、跨队列适应 | NLST 190 例患者 / 536 张 WSI；TCGA 399 例 / 1,023 张；患者级 5 折，TCGA 留出 871 个 tile 作目标域测试 | <a href="#ref-2224">病理 SSDA</a> |
-| 多器官小图 | MedMNIST（BreastMNIST、PneumoniaMNIST、DermaMNIST 等） | 少样本分类 | 每类 16 张标注样本 | <a href="#ref-2190">C2I</a>、<a href="#ref-2162">GIF</a> |
+| 多器官小图 | MedMNIST（BreastMNIST、PneumoniaMNIST、DermaMNIST 等） | 少样本分类 | 每类 16 张标注样本 | <a href="#ref-2190">C2I</a>、<a href="#ref-2162">GIF</a>、<a href="#ref-2292">LSADA</a>、<a href="#ref-2297">Closed-Set Equivalence</a> |
 | 冠脉造影 | 内部数据集、ARCADE | 狭窄检测与分级 | 内部 7,894 张按患者划分（5,156 / 1,854 / 884）；ARCADE 200 例作外部验证 | <a href="#ref-2279">DiGDA</a> |
 | 烧伤照片 | EBIS | 半监督分割 | 392 训练 / 208 测试；标注比例 5% / 10% / 20% | <a href="#ref-2272">EBIS</a> |
 | 创伤影像 | PRONTO | 出血部位分类 | 362 张图像 / 211 例患者，按患者 70% / 30% | <a href="#ref-2194">Limitations in Data-Scarce Domains</a> |
@@ -342,35 +349,55 @@ authors: [MaybeRichard]
 7. 是否报告逐类别、跨域和外部测试集的表现。
 8. 测试集是否与生成器的训练、调参数据完全隔离（见 6.4 节）。
 
-<a href="#ref-2090">UniDiffDA</a> 的价值正在于把这些变量拆开评估。<a href="#ref-2096">医学影像系统综述</a>则从更高层面提醒：合成数据的增益主要来自与真实数据互补，真实数据仍然承担核心监督作用。
+<a href="#ref-2090">UniDiffDA</a> 的价值正在于把这些变量拆开评估。实验协议还应把真实数据增强、同源真实图检索、图像条件扩散、文本条件扩散和任务效用筛选五类基线并列报告。<a href="#ref-2096">医学影像系统综述</a>则从更高层面提醒：合成数据的增益主要来自与真实数据互补，真实数据仍然承担核心监督作用。
 
-### 7.3 代表性结果
+### 7.3 UniDiffDA 的统一参照
 
-下表的数字来自论文各自的实验设置，用于理解方法的作用，不构成跨论文的排行榜。
+<a href="#ref-2090">UniDiffDA</a> 把生成器适配、样本生成和样本利用放进同一套协议。下面的结果用于区分“统一设置下的方法差异”和“某篇论文自己的实验设置下有效”，不替代各论文的原始结果。
 
-| 方法 | 任务与数据条件 | 主要数据集 | 论文报告的结果 | 比较时需固定的因素 |
-|:--|:--|:--|:--|:--|
-| <a href="#ref-116">TADA</a> | 分类 | CIFAR-10/100、TinyImageNet | 只增强 30%–40% 的样本，最高提升 2.8 个百分点 | 真实数据量、增强比例、骨干 |
-| <a href="#ref-2102">BOB</a> | 分类，少样本 | Aircraft、CUB、Cars、Pets 等 | 24 个设置中 18 个超过先前方法，14 个提升超过 2 个百分点 | shot 数、属性建模、生成模型 |
-| <a href="#ref-2150">DataDream</a> | 分类，少样本 | 10 个少样本分类数据集 | 10 个数据集中 7 个超过先前方法 | LoRA 预算与 shot 数 |
-| <a href="#ref-2154">Diff-Mix</a> | 分类，细粒度 | CUB、FGVC-Aircraft、Flowers | 在常规、少样本和长尾设置中稳定提升 | 类别粒度、生成倍数 |
-| <a href="#ref-2178">MGRAttn-RNO</a> | 分类，长尾单样本 | CUB-LT、Flowers-LT（IF100） | CUB-LT IF100 上最高提升 2.50 和 2.94 个百分点 | 不平衡比例、前景掩码质量 |
-| <a href="#ref-2116">DisCL</a> | 分类，长尾与跨域 | ImageNet-LT、iWildCam | ImageNet-LT 尾类准确率 4.40% → 23.64%，整体 35.80% → 39.82%；iWildCam OOD F1 35.5 → 38.2 | many/medium/few 划分、域外测试集 |
-| <a href="#ref-2268">TRCGL-Net</a> | 医学多标签，长尾 | PadChest | tail mAP 0.4904，overall mAP 0.4408，mAUC 0.8989 | 多标签指标不能与单标签比较 |
-| <a href="#ref-2186">Tail-SD</a> | 检测，长尾 | COCO、LVIS | LVIS rare Box AP +4.89，rare Mask AP +5.68 | rare 类定义、实例预算 |
-| <a href="#ref-2120">MRCA</a> | 实例分割，长尾 | LVIS | 只需约 6% 的生成量即可获得持续收益 | 实例预算、评测协议 |
-| <a href="#ref-2104">S3OD</a> | 显著性检测，跨域 | DIS、HR-SOD | 纯合成训练的跨数据集错误减少 20%–50% | 错误率不能与 mIoU、AP 混比 |
-| <a href="#ref-2054">MatchMask</a> | 分割，少标注 | PASCAL VOC、COCO、ADE20K | PASCAL VOC mIoU 67.5% → 74.3% | 掩码对齐、标注比例、分割骨干 |
-| <a href="#ref-2166">DatasetDM</a> | 分割与检测 | PASCAL VOC 2012、COCO 2017 | VOC +13.3 mIoU，COCO +12.1 AP | 生成标注类型、下游模型 |
-| <a href="#ref-240">医学 DiffAug</a> | 医学分割 | CVC-ClinicDB、Kvasir-SEG、REFUGE2 | Dice 提升 8%–10%；小息肉和扁平病灶的假阴性率最高降低 28% | 病灶类型、文本提示来源 |
-| <a href="#ref-2056">MedDiff-FT</a> | 医学分割 | ISIC、BUSI、PH2、DDTI 等 | 五个数据集平均提升约 1% Dice | 模态、器官、标注比例 |
-| <a href="#ref-2246">D3S2</a> | 分割数据集蒸馏 | ADE20K、COCO-Stuff | 1% 压缩率下 mIoU 24.99% / 35.49% | 压缩比例、验证集 |
-| <a href="#ref-2258">StableRep</a>、<a href="#ref-2260">SynCLR</a> | 表征学习 | 合成预训练，ImageNet、ADE20K | 20M 合成图超过 50M 真实图的 CLIP；ADE20K 比 MAE、iBOT 高 5.0、3.1 mIoU | 预训练规模、语言监督 |
-| <a href="#ref-2234">Chamfer Guidance</a> | 生成后筛选，少样本 | ImageNet-1k、地理多样性基准 | 2 个样例时 precision 96.4%、coverage 86.4%；下游 ID/OOD 准确率最高提升 15%/16% | 质量指标与下游效用需同时报告 |
+| 数据集 | 原始训练 | 最好方法 | 结果 |
+|:--|--:|:--|--:|
+| Caltech-101 | 49.95 | GIF | 76.11 |
+| CIFAR-100 | 55.22 | Diff-Mix | 71.37 |
+| ImageNet-100 | 65.28 | GIF | 78.63 |
+| ImageNet-1K | 22.37 | Diff-Mix | 39.93 |
+| CUB 5-shot | 52.24 | Diff-Mix | 63.41 |
+| Aircraft 5-shot | 32.26 | Diff-Mix | 40.59 |
+
+### 7.4 代表性结果
+
+下表的数字来自论文各自的实验设置，用于理解方法的作用，不构成跨论文的排行榜。“真实数据量与扩展比例”只在论文明确报告时填写。
+
+| 方法 | 任务与数据条件 | 主要数据集 | 真实数据量与扩展比例 | 论文报告的结果 | 比较时需固定的因素 |
+|:--|:--|:--|:--|:--|:--|
+| <a href="#ref-2299">DreamDA</a> | 分类，少样本与数据稀缺 | Caltech101、Stanford Cars、Oxford-IIIT Pets、Shenzhen TB、STL-10 | Cars/Caltech 20×，Pets 30×，其余 10×；STL-10 另有 40-label 设置 | 预训练 Cars 89.2→94.5、Pets 86.9→93.2；从头训练 Cars 46.1→87.1、Pets 43.8→86.5 | 预训练或从头训练、生成倍数、伪标签阈值 |
+| <a href="#ref-2300">DistDiff</a> | 分类，分布感知生成 | Caltech-101、CIFAR100-Subset、ImageNette、Stanford Cars、DTD、PathMNIST | Caltech-101 5×；Cars 2× | Caltech-101 5×：DA-Fusion 79.14、DiffuseMix 82.33、DistDiff 83.09；Cars 2×：Stable Diffusion 88.45、DistDiff 90.69 | 原型构造、扩展倍数、下游骨干 |
+| <a href="#ref-2301">CBDM</a> | 分类，长尾与类别不平衡 | CIFAR-10/100 及 CIFAR10LT/CIFAR100LT | 每种设置生成 10,000 张图像 | CIFAR100-LT：DDPM FID/Recall/IS 7.38/0.52/13.11，CBDM 6.26/0.57/13.24，CBDM+ADA 5.81/0.57/13.34 | 长尾先验、生成样本数、FID 特征空间 |
+| <a href="#ref-116">TADA</a> | 分类，任务反馈与生成后筛选 | CIFAR-10/100、TinyImageNet、ImageNet、COCO | CIFAR/Tiny 目标样本约30%–40%；ImageNet约65%；COCO约75% | 只增强目标样本即优于全量增强，最高提升 2.8 个百分点 | 目标样本比例、最终合成比例、真实数据量 |
+| <a href="#ref-2102">BOB</a> | 分类，少样本 | Aircraft、CUB、Cars、Pets 等 | 论文按 shot 设置 | 24 个设置中 18 个超过先前方法，14 个提升超过 2 个百分点 | shot 数、属性建模、生成模型 |
+| <a href="#ref-2150">DataDream</a> | 分类，少样本 | 10 个少样本分类数据集 | 16-shot 等设置，按类生成 | 10 个数据集中 7 个超过先前方法 | LoRA 预算与 shot 数 |
+| <a href="#ref-2154">Diff-Mix</a> | 分类，细粒度 | CUB、FGVC-Aircraft、Flowers | 论文按常规、少样本和长尾设置 | 在常规、少样本和长尾设置中稳定提升 | 类别粒度、生成倍数 |
+| <a href="#ref-2178">MGRAttn-RNO</a> | 分类，长尾单样本 | CUB-LT、Flowers-LT（IF100） | IF100，真实与合成比例按论文设置 | CUB-LT IF100 上最高提升 2.50 和 2.94 个百分点 | 不平衡比例、前景掩码质量 |
+| <a href="#ref-2116">DisCL</a> | 分类，长尾与跨域 | ImageNet-LT、iWildCam | many/medium/few 与域外测试 | ImageNet-LT 尾类准确率 4.40%→23.64%，整体 35.80%→39.82%；iWildCam OOD F1 35.5→38.2 | many/medium/few 划分、域外测试集 |
+| <a href="#ref-2268">TRCGL-Net</a> | 医学多标签，长尾 | PadChest | 按患者划分，尾类设定见论文 | tail mAP 0.4904，overall mAP 0.4408，mAUC 0.8989 | 多标签指标不能与单标签比较 |
+| <a href="#ref-2186">Tail-SD</a> | 检测，长尾 | COCO、LVIS | 真实:合成约4:1 | LVIS rare Box AP +4.89，rare Mask AP +5.68 | rare 类定义、实例预算 |
+| <a href="#ref-2120">MRCA</a> | 实例分割，长尾 | LVIS | 特定 LVIS 设置中约6%生成预算 | 只需约6%的生成量即可获得持续收益 | 这是特定 LVIS 实例分割设置，不能推广成领域通用比例 |
+| <a href="#ref-2104">S3OD</a> | 显著性检测，跨域 | DIS、HR-SOD | 合成单独训练与真实微调分别报告 | 合成数据单独训练时跨数据集错误减少20%–50%；加入真实数据微调后的结果应单独解读 | 错误率不能与 mIoU、AP 混比，两种训练协议不能混写 |
+| <a href="#ref-2054">MatchMask</a> | 分割，少标注 | PASCAL VOC、COCO、ADE20K | VOC 1/4 标注，另有无标签半监督设置 | VOC 联合训练 67.5→72.1 mIoU；74.3 属于 MatchMask++ 半监督设置，Unimatch→MatchMask++ 为 78.3→79.6 | 掩码对齐、标注比例、分割骨干 |
+| <a href="#ref-2166">DatasetDM</a> | 分割与检测 | PASCAL VOC 2012、COCO 2017 | VOC 100 张真实图；COCO 800 张真实图+80,000 张合成图 | VOC 联合训练 65.2→78.5 mIoU，纯合成训练 73.7；COCO +12.1 AP | 生成标注类型、真实数据量、下游模型 |
+| <a href="#ref-2291">FROST</a> | 分类，评测与生成后筛选 | CIFAR-100 | 过滤约20%–30%合成数据 | 相比全量合成训练，FLUX/SANA/SD1.4 分别提升 0.58/0.65/1.14 个百分点 | 真实锚点、梯度计算预算 |
+| <a href="#ref-2292">LSADA</a> | 分类，任务反馈与评测 | 6 个自然图像集、3 个医学图像集 | DTD 与 Caltech-101 用 1×生成量，对照 ActGen 10× | 相比 ActGen，自然图像平均提升 4.5 个百分点，医学图像平均提升 2.5 个百分点 | 学习状态定义、生成器和数据集规模 |
+| <a href="#ref-2293">CCDM</a> | 检测，评测与生成后筛选 | COCO、VisDrone | 每组候选集合按统一条件构造 | 与 YOLOv8 mAP 的 Spearman ρ 为 0.98/0.96，并约6×加速候选筛选 | 参考集、特征距离、分层统计 |
+| <a href="#ref-2294">SENSE</a> | 分割，评测与标签分配 | Cityscapes、COCO、ADE20K | 多种合成规模，按论文协议比较 | Cityscapes DPT 最高 +2.54 mIoU，Mask2Former 多尺度 +1.59；COCO 和 ADE20K 也持续提升 | 场景密度、实例细节、OT 标签分配 |
+| <a href="#ref-240">医学 DiffAug</a> | 医学分割 | CVC-ClinicDB、Kvasir-SEG、REFUGE2 | 按各数据集标注比例设置 | Dice 提升 8%–10%；小息肉和扁平病灶的假阴性率最高降低 28% | 病灶类型、文本提示来源 |
+| <a href="#ref-2056">MedDiff-FT</a> | 医学分割 | ISIC、BUSI、PH2、DDTI 等 | 按模态和标注比例设置 | 五个数据集平均提升约 1% Dice | 模态、器官、标注比例 |
+| <a href="#ref-2246">D3S2</a> | 分割数据集蒸馏 | ADE20K、COCO-Stuff | 1%压缩率 | ADE20K/COCO-Stuff mIoU 24.99%/35.49% | 压缩比例、验证集 |
+| <a href="#ref-2258">StableRep</a>、<a href="#ref-2260">SynCLR</a> | 合成预训练 | 合成预训练，ImageNet、ADE20K | 预训练规模与真实图规模分别报告 | 20M 合成图超过 50M 真实图的 CLIP；ADE20K 比 MAE、iBOT 高 5.0、3.1 mIoU | 预训练规模、语言监督 |
+| <a href="#ref-2234">Chamfer Guidance</a> | 生成后筛选，少样本 | ImageNet-1K、地理多样性基准 | 按样例数和筛选预算扫描 | 2 个样例时 precision 96.4%、coverage 86.4%；下游 ID/OOD 准确率最高提升 15%/16% | 质量指标与下游效用需同时报告 |
 
 整体来看，收益来自数据条件与任务模型的匹配：少样本分类看类内变化和分布贴合，长尾看尾类覆盖与决策边界，分割还必须验证图像与掩码的一致性。
 
-### 7.4 本轮新增九篇全文核对
+### 7.5 本轮新增九篇全文核对
 
 下面的表格只记录本轮新增的 9 篇，结果均来自论文正文或附录。数字保留论文原实验设置，不能拼成跨数据集总榜。
 
@@ -386,7 +413,7 @@ authors: [MaybeRichard]
 | <a href="#ref-2297">Closed-Set Equivalence</a> | 在每个 base training set 上从头训练闭集 EDM/DiT，并与真实增广和开放集 SD3/CIFAKE 对照，拟合合成数据量相当于多少真实数据。 | BloodMNIST；CIFAR-10 的 1%、10%、50%、100% 子集；ImageNet-100 的多种 base size。 | 闭集合成增广在三个数据集都能提升分类，但达到同等收益需要更多合成图；固定 base size 后收益快速边际递减。CIFAR-10 上闭集 FID 8.33，明显低于开放集 27.15；ImageNet-100 则开放集更强。 | 等效关系是经验拟合、没有理论保证；实验受算力限制，数据集规模相对小，闭集模型在复杂 ImageNet-100 上仍有明显失真。 | 论文未给出已确认的作者代码仓库。 |
 | <a href="#ref-2298">The Unmet Promise</a> | 用同一 LAION-2B 上游来源比较 Stable Diffusion 1.5 生成的目标合成图与直接检索的目标真实图，控制适配数据规模并做 CLIP 微调。 | ImageNet-1K、DTD、FGVC-Aircraft、Stanford Cars、Oxford Flowers102 分类。 | FGVC-Aircraft 上 139K 合成图把线性探测从 64.9% 提到 68.7%，同规模检索真实图提高到 82.7%；DTD 合成图使 zero-shot 56.3%→59.6%。在 ImageNet、Cars、Flowers 等设置中合成图有时反而伤害 zero-shot；达到 15K 检索真实图效果需要约 500K 合成图。 | 检索基线依赖生成器上游数据可访问；若上游数据不可用，检索不可执行。合成图仍可能含生成伪影和类别细节错误。 | [作者代码](https://github.com/scottgeng00/unmet-promise)，已归档到 `outputs/synthetic_augmentation_archive_2026-11-19_complete/code/new_candidates_2026-11-19/unmet-promise`。 |
 
-这 9 篇共同补上了综述中原先缺少的三条证据链：视觉逼真度与训练效用并不等价，生成过程需要由任务反馈或条件设计约束，生成后必须用任务相关指标而不是只看 FID 来筛选。对分割而言，保留真实标签对应的困难区域，或通过最优传输重分配标签，是目前更直接的标签有效性控制方案。
+这 9 篇共同补上了综述中原先缺少的三条证据链：视觉逼真度与训练效用并不等价，生成过程需要由任务反馈或条件设计约束，生成后必须用任务相关指标而不是只看 FID 来筛选。对分割而言，保留真实标签对应的困难区域，或通过最优传输重分配标签，是目前更直接的标签有效性控制方案。本轮另将 DreamDA、DistDiff 和 CBDM 三篇分类基准补入第 7.4 节并加入参考文献。
 
 ## 8. 局限与开放问题
 
@@ -415,7 +442,7 @@ authors: [MaybeRichard]
 4. **在哪个空间里生成**：像素、VAE 潜空间、基础模型表征空间、下游特征空间各有利弊，缺少系统比较。
 5. **合成掩码的解剖合理性验证**：目前只有保守扰动等局部方案，缺少通用的验证方法。
 6. **可复现的医学评测协议**：固定真实数据预算与生成预算、报告合成比例曲线和外部验证，并保证测试集与生成器数据隔离。
-7. **把检索真实图纳入默认强基线**：当生成器的上游数据可访问时，需要和同源真实图检索比较，才能判断生成步骤是否带来额外信息（<a href="#ref-2298">The Unmet Promise</a>）。
+7. **把检索真实图纳入默认强基线**：当生成器的上游数据可访问时，需要和同源真实图检索比较，才能判断生成步骤是否带来额外信息（<a href="#ref-2298">The Unmet Promise</a>）。实验协议至少应并列报告真实数据增强、同源真实图检索、图像条件扩散、文本条件扩散和任务效用筛选五类基线。
 8. **把视觉质量和训练效用分开报告**：CLIP、FID 或审美分数不能替代 Synth→Real、任务 mAP/mIoU 或梯度效用评测（<a href="#ref-2290">When Pretty Isn't Useful</a>；<a href="#ref-2293">CCDM</a>）。
 
 ## 9. 总结
@@ -427,10 +454,10 @@ authors: [MaybeRichard]
 <details markdown="1">
 <summary>A. 文献范围与统计口径（点击展开）</summary>
 
-本文的文献来自作者整理的 Zotero 文献库「合成图像用于数据增强」子集，以及更广义的 Diffusion Model 子集中与图像合成增广直接相关的少量补充。本轮在此前主体证据上新增 9 篇，并逐篇读取摘要、正文和附录。当前纳入 92 条主体证据，其中 90 篇读取了全文 PDF；参考文献列表共 98 条，包括 6 条背景文献和 92 条主体记录。
+本文的文献来自作者整理的 Zotero 文献库「合成图像用于数据增强」子集，以及更广义的 Diffusion Model 子集中与图像合成增广直接相关的少量补充。本轮在此前主体证据上新增 12 篇，并逐篇读取摘要、正文和附录。当前纳入 95 条主体证据，其中 93 篇读取了全文 PDF；参考文献列表共 101 条，包括 6 条背景文献和 95 条主体记录。
 
 - 按质量筛选规则，Sensors 2026 的 Propose-and-Select，以及 ADuLTS、Synthetic Imagery 和 Triple-Prompt 未纳入核心统计。
-- 下游任务按单一主类统计：分类 39 条、目标检测 2 条、分割与稠密预测 24 条、表征学习 2 条、数据集蒸馏 8 条、综述与评测 6 条，另有 WILD-Diffusion、Sketch2CT 两条生成器与领域基础记录。
+- 下游任务按单一主类统计：分类 48 条、目标检测 3 条、分割与稠密预测 26 条、表征学习 2 条、数据集蒸馏 8 条、综述与评测 6 条，另有 WILD-Diffusion、Sketch2CT 两条生成器与领域基础记录。
 - 数据条件为交叉索引：少样本与数据稀缺 22 条、长尾与类别不平衡 24 条、跨域与域偏移 16 条、标签稀缺与半监督 7 条、持续学习与鲁棒性 6 条。
 - 以下两条暂无全文，相关描述依据题目、摘要或出版页面：Generative Active Learning via Bayesian Acquisition for Improving the Efficiency of Synthetic Data；Class-Mixed Diffusion Augmentation for Shortcut-Breaking in Continual Learning。
 - 正式接收、预印本、workshop 和 OpenReview 在审状态按 Zotero 条目和来源页面分别标注。
@@ -440,7 +467,7 @@ authors: [MaybeRichard]
 <details markdown="1">
 <summary>B. 开源代码（点击展开）</summary>
 
-下表列出论文来源页或正文中明确指向的作者代码仓库，共 37 个；其中 TRCGL-Net 和 SFD-Polyp 的链接目前返回 Repository not found。本轮新增 4 个可确认仓库，另外 5 篇未找到作者仓库。依赖库和基础模型的链接没有计入。仓库根目录下的 `README`、`configs`、`scripts` 和训练入口通常包含复现实验所需的命令。
+下表列出论文来源页或正文中明确指向的作者代码仓库，共 40 个；其中 TRCGL-Net 和 SFD-Polyp 的链接目前返回 Repository not found。本轮新增 7 个可确认仓库，另外 5 篇未找到作者仓库。依赖库和基础模型的链接没有计入。仓库根目录下的 `README`、`configs`、`scripts` 和训练入口通常包含复现实验所需的命令。
 
 | 方法 | 作者代码路径 | 备注 |
 |:--|:--|:--|
@@ -456,6 +483,9 @@ authors: [MaybeRichard]
 | Diffusing DeBias | [Malga-Vision/DiffusingDeBias](https://github.com/Malga-Vision/DiffusingDeBias) | 偏置放大与去偏 |
 | MedDiff-FT | [JianhaoXie1/MedDiff-FT](https://github.com/JianhaoXie1/MedDiff-FT) | 医学图像轻量微调 |
 | DataDream | [ExplainableML/DataDream](https://github.com/ExplainableML/DataDream) | 少样本数据集生成 |
+| DreamDA | [yunxiangfu2001/DreamDA](https://github.com/yunxiangfu2001/DreamDA) | 反演瓶颈扰动与一致性训练 |
+| DistDiff | [haoweiz23/DistDiff](https://github.com/haoweiz23/DistDiff) | 分布感知能量引导 |
+| CBDM | [qym7/CBDM-](https://github.com/qym7/CBDM-) | 长尾类别平衡扩散 |
 | Diff-Mix | [Zhicaiwww/Diff-Mix](https://github.com/Zhicaiwww/Diff-Mix) | 跨类别扩散混合 |
 | DA-Fusion | [brandontrabucco/da-fusion](https://github.com/brandontrabucco/da-fusion) | 图像条件扩散增广 |
 | GIF | [Vanint/DatasetExpansion](https://github.com/Vanint/DatasetExpansion) | 小规模数据集扩展 |
@@ -591,6 +621,9 @@ authors: [MaybeRichard]
 <li id="ref-2296"><span class="ref-no">[96]</span> <strong>Augmented Conditioning Is Enough For Effective Training Image Generation</strong>（2025；arXiv:2502.04475；分类、长尾与少样本；<a href="https://arxiv.org/abs/2502.04475">来源</a>）</li>
 <li id="ref-2297"><span class="ref-no">[97]</span> <strong>Exploring the Equivalence of Closed-Set Generative and Real Data Augmentation in Image Classification</strong>（2025；arXiv:2508.09550；分类、少样本与数据稀缺；<a href="https://arxiv.org/abs/2508.09550">来源</a>）</li>
 <li id="ref-2298"><span class="ref-no">[98]</span> <strong>The Unmet Promise of Synthetic Training Images: Using Retrieved Real Images Performs Better</strong>（2024；NeurIPS；分类、生成后筛选与真实数据基线；<a href="https://proceedings.neurips.cc/paper_files/paper/2024/hash/0f25eb6e9dc26c933a5d7516abf1eb8c-Abstract-Conference.html">来源</a>；<a href="https://github.com/scottgeng00/unmet-promise">代码</a>）</li>
+<li id="ref-2299"><span class="ref-no">[99]</span> <strong>DreamDA: Generative Data Augmentation with Diffusion Models</strong>（2024；分类、少样本与数据稀缺；<a href="https://arxiv.org/abs/2403.12803">来源</a>；<a href="https://github.com/yunxiangfu2001/DreamDA">代码</a>）</li>
+<li id="ref-2300"><span class="ref-no">[100]</span> <strong>DistDiff: Distribution-Aware Diffusion for Data Expansion</strong>（2024；分类、分布感知生成；<a href="https://arxiv.org/abs/2403.06741">来源</a>；<a href="https://github.com/haoweiz23/DistDiff">代码</a>）</li>
+<li id="ref-2301"><span class="ref-no">[101]</span> <strong>Class-Balancing Diffusion Models for Long-Tailed Data Generation (CBDM)</strong>（2023；分类、长尾与类别不平衡；<a href="https://arxiv.org/abs/2305.00562">来源</a>；<a href="https://github.com/qym7/CBDM-">代码</a>）</li>
 </ul>
 </details>
 
