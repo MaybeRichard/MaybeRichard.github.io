@@ -23,7 +23,7 @@ authors: [MaybeRichard]
 
 然而，把生成图像直接加进训练集并不必然带来提升。合成图像可能标签不符、分布偏移、过于“典型”，在某些设置下甚至会降低性能（<a href="#ref-2097">When More Data Hurts</a>、<a href="#ref-2194">Limitations in Data-Scarce Domains</a>）。因此本文关心的核心问题是：**在什么数据条件下、生成什么样的样本、以什么方式使用，合成数据才能真正改善下游模型？**
 
-全文结构如下：第 2 节给出问题定义和分类框架；第 3 节梳理 2023—2026 年的发展脉络；第 4 节按技术路线逐类比较代表方法；第 5 节把方法放回下游任务与数据条件中对照；第 6 节讨论质量指标、比较协议和代表性结果；第 7 节分析共同局限与开放问题；第 8 节总结。文献范围、统计口径和开源代码放在文末的折叠附录中。
+全文结构如下：第 2 节给出问题定义和分类框架；第 3 节梳理 2023—2026 年的发展脉络；第 4 节按技术路线逐类比较代表方法；第 5 节把方法放回下游任务与数据条件中对照；第 6 节整理常用数据集与实验协议；第 7 节讨论质量指标、比较协议和代表性结果；第 8 节分析共同局限与开放问题；第 9 节总结。文献范围、统计口径和开源代码放在文末的折叠附录中。
 
 ## 2. 问题定义与分类框架
 
@@ -242,9 +242,75 @@ authors: [MaybeRichard]
 - **分割**，尤其是医学分割，主要瓶颈不是图像是否逼真，而是病灶形状、边界和标注是否可信。
 - 持续学习、检测与分割在鲁棒性方向的空格，既可能是本文收录范围的偏差，也可能是真正的研究空白。
 
-## 6. 评测：指标、协议与结果
+## 6. 常用数据集与实验协议
 
-### 6.1 合成质量指标
+数据集和实验协议决定了论文结论能推广到哪里。自然图像方向高度集中在少数几个基准上；医学方向的数据集分散、规模小、私有数据多，只有息肉分割形成了较统一的划分。另一个普遍问题是划分信息不完整：在有全文、属于图像增广范围的 74 篇工作中，约 45 篇没有完整报告训练、验证、测试的具体数量，多数只写“沿用官方划分”或“标准协议”。
+
+### 6.1 自然图像数据集
+
+| 用途 | 数据集 | 规模与特点 | 代表方法 |
+|:--|:--|:--|:--|
+| 通用分类 | ImageNet-1K | 1.28M 训练图、50K 验证图、1000 类；合成规模实验的主战场 | <a href="#ref-2240">Azizi 等</a>（合成 1.2M–12M）、<a href="#ref-2072">Scaling Laws</a>（合成至约 4M）、<a href="#ref-2262">Fake It</a>、<a href="#ref-2234">Chamfer Guidance</a>、<a href="#ref-2130">DAR-GDA</a>、<a href="#ref-2238">DiffAug</a> |
+| 通用分类（小规模） | CIFAR-10/100、Tiny-ImageNet、ImageNet-100 | 便于快速实验和理论验证 | <a href="#ref-116">TADA</a>、<a href="#ref-2130">DAR-GDA</a>、<a href="#ref-123">DiffuseMix</a>、<a href="#ref-2250">Post-Generation Curation</a>、<a href="#ref-2256">开放集半监督扩散</a> |
+| 分布偏移测试 | ImageNet-V2/Sketch/R/A、ImageNet-C、Waterbirds、ImageNet-9、PACS、DomainNet | 只用于测试，不参与训练 | <a href="#ref-2072">Scaling Laws</a>、<a href="#ref-2238">DiffAug</a>、<a href="#ref-2234">Chamfer Guidance</a>、<a href="#ref-2134">Diffusing DeBias</a>、<a href="#ref-2154">Diff-Mix</a>、<a href="#ref-2252">Not Just Pretty Pictures</a> |
+| 细粒度与少样本 | CUB、FGVC-Aircraft、Stanford Cars、Oxford-IIIT Pets、Flowers102、DTD、EuroSAT、Caltech101、Food101、SUN397 | 少样本设置通常从官方训练集中每类抽 k 张 | <a href="#ref-2150">DataDream</a>、<a href="#ref-2281">LoFT</a>、<a href="#ref-2100">ChimeraLoRA</a>、<a href="#ref-2102">BOB</a>、<a href="#ref-2118">Diff-II</a>、<a href="#ref-2236">SaSPA</a>、<a href="#ref-2158">DA-Fusion</a>、<a href="#ref-2162">GIF</a> |
+| 长尾分类 | CIFAR-10/100-LT、ImageNet-LT、Places-LT、iNaturalist 2018、CUB-LT、Flower-LT、Food101-LT | 人为构造或天然长尾；按 many/medium/few 分组报告 | <a href="#ref-2170">Fill-Up</a>、<a href="#ref-351">DiffuLT</a>、<a href="#ref-276">LDMLR</a>、<a href="#ref-2122">CORAL</a>、<a href="#ref-2098">DBG</a>、<a href="#ref-2254">SynBalance</a>、<a href="#ref-2116">DisCL</a>、<a href="#ref-2178">MGRAttn-RNO</a>、<a href="#ref-2146">长尾食物分类</a> |
+| 检测与实例分割 | COCO、LVIS（rare/common/frequent）、跨域少样本检测基准（ArTaxOr、DIOR、UODD、Clipart1k、DeepFish、NEU-DET）、nuScenes、DIS-5K 等显著性基准 | 检测证据最少，基准分散 | <a href="#ref-2186">Tail-SD</a>、<a href="#ref-2120">MRCA</a>、<a href="#ref-2244">Free-Lunch</a>、<a href="#ref-2248">FrozenDrive</a>、<a href="#ref-2104">S3OD</a> |
+| 语义分割 | PASCAL VOC 2012、ADE20K、COCO / COCO-Stuff、Cityscapes、LoveDA（遥感） | 少标注设置常按比例取 VOC 训练集 | <a href="#ref-364">DiffuMask</a>、<a href="#ref-2166">DatasetDM</a>、<a href="#ref-2054">MatchMask</a>、<a href="#ref-2246">D3S2</a>、<a href="#ref-2283">S2-RL</a>、<a href="#ref-2214">长尾遥感分割</a> |
+| 表征学习 | CC12M、RedCaps 等图文描述；下游用 ImageNet 线性探测、9 个细粒度数据集、ADE20K | 合成规模可达上亿张 | <a href="#ref-2258">StableRep</a>、<a href="#ref-2260">SynCLR</a> |
+| 数据集蒸馏 | ImageNet-1K 及其子集（ImageNette、ImageWoof、ImageIDC 等） | 按每类保留张数（IPC）或全局压缩率报告 | <a href="#ref-2106">IMS3</a>、<a href="#ref-2108">EVLF</a>、<a href="#ref-2285">DIVER</a>、<a href="#ref-2287">SFM</a> |
+
+### 6.2 医学图像数据集
+
+| 模态 | 数据集 | 任务 | 规模与划分 | 代表方法 |
+|:--|:--|:--|:--|:--|
+| 结肠镜 | Kvasir-SEG、CVC-ClinicDB、CVC-ColonDB、CVC-300、ETIS、PolypGen、HyperKvasir | 息肉分割 | 常用 PraNet 划分：Kvasir 900 张 + ClinicDB 550 张训练，其余五个数据集测试 | <a href="#ref-2270">SFD-Polyp</a>、<a href="#ref-2274">Polyp-LDM</a>（PolypGen 按中心划分）、<a href="#ref-240">医学 DiffAug</a>、<a href="#ref-2039">Dual-Stream Diffusion</a> |
+| 皮肤镜 | ISIC 2016/2017/2018/2019、PH2 | 病变分割与分类 | ISIC 2018 Task 1 有 2,594 对图像—掩码；ISIC 2019 有 25,331 张、8 类 | <a href="#ref-2035">DiDGen</a>、<a href="#ref-2039">Dual-Stream Diffusion</a>、<a href="#ref-2056">MedDiff-FT</a>、<a href="#ref-2198">ISIC2019 长尾分类</a>、<a href="#ref-2112">The Learnability Gap</a> |
+| 眼底 | REFUGE2 | 视盘视杯分割 | 1,200 张（800 训练 / 400 测试） | <a href="#ref-240">医学 DiffAug</a> |
+| 超声 | BUSI、DDTI | 乳腺、甲状腺结节分割 | 留出 20% 作验证或测试 | <a href="#ref-2056">MedDiff-FT</a> |
+| 心脏 CT/MRI | MM-WHS、TotalSegmentator 心脏子集 | 心脏结构分割 | MM-WHS 仅 20 例 CT + 20 例 MRI；80% / 20% 划分，另设 2-shot、4-shot | <a href="#ref-2276">DiffAtlas</a> |
+| 腹部 CT/MRI | 3D-IRCADb-01、CHAOS、MSD、MRGen-DB | 器官与病灶分割、跨模态生成 | 3D-IRCADb 按患者划分；MRGen-DB 含 6,384 个体数据、245,082 张切片 | <a href="#ref-2039">Dual-Stream Diffusion</a>、<a href="#ref-2059">MRGen</a>、<a href="#ref-2114">Sketch2CT</a>（8:2 划分） |
+| 胸部 X 光 | PadChest、NIH ChestX-ray14、MIMIC-LT | 长尾多标签分类、稀有病变分类 | PadChest 超过 16 万张，按患者 80% / 20%；ChestX-ray14 实验只用约 50 张阳性样本做 LoRA | <a href="#ref-2268">TRCGL-Net</a>、<a href="#ref-2202">Few-Shot Synthetic Data</a>、<a href="#ref-2112">The Learnability Gap</a> |
+| 病理 | NLST、TCGA 肺腺癌 WSI | 生长模式分类、跨队列适应 | NLST 190 例患者 / 536 张 WSI；TCGA 399 例 / 1,023 张；患者级 5 折，TCGA 留出 871 个 tile 作目标域测试 | <a href="#ref-2224">病理 SSDA</a> |
+| 多器官小图 | MedMNIST（BreastMNIST、PneumoniaMNIST、DermaMNIST 等） | 少样本分类 | 每类 16 张标注样本 | <a href="#ref-2190">C2I</a>、<a href="#ref-2162">GIF</a> |
+| 冠脉造影 | 内部数据集、ARCADE | 狭窄检测与分级 | 内部 7,894 张按患者划分（5,156 / 1,854 / 884）；ARCADE 200 例作外部验证 | <a href="#ref-2279">DiGDA</a> |
+| 烧伤照片 | EBIS | 半监督分割 | 392 训练 / 208 测试；标注比例 5% / 10% / 20% | <a href="#ref-2272">EBIS</a> |
+| 创伤影像 | PRONTO | 出血部位分类 | 362 张图像 / 211 例患者，按患者 70% / 30% | <a href="#ref-2194">Limitations in Data-Scarce Domains</a> |
+
+### 6.3 低数据设置的构造方式
+
+论文模拟“数据不足”的方式主要有六种。不同构造方式之间的结果不能直接比较。
+
+| 构造方式 | 做法 | 例子 |
+|:--|:--|:--|
+| 每类 k-shot | 从官方训练集中每类抽 k 张，测试集不变 | <a href="#ref-2150">DataDream</a> 16-shot，每类生成 500 张；<a href="#ref-2118">Diff-II</a>、<a href="#ref-2102">BOB</a> 5/10-shot；<a href="#ref-2158">DA-Fusion</a> 每次随机 20 类、1/2/4/8-shot、重复 15 次；<a href="#ref-2190">C2I</a> 每类 16 张 |
+| 按比例取标注子集 | 只保留一定比例的标注，其余作为无标注数据 | <a href="#ref-2272">EBIS</a> 5% / 10% / 20%；<a href="#ref-2256">开放集半监督扩散</a> 每类 100 张或 10% 标注 |
+| 人为构造长尾 | 从均衡数据集按指数或 Pareto 分布抽样 | CIFAR-LT 的不平衡因子 10 / 50 / 100；ImageNet-LT 每类 5–1,280 张；<a href="#ref-2182">BRIDGE</a> 的 ImageNet-100-LT 用 Pareto α=2.5 |
+| 交叉验证 | 小数据集轮换训练与测试 | <a href="#ref-2198">ISIC2019 长尾分类</a> 5 折，每轮只用 4 折微调生成器；<a href="#ref-2202">Few-Shot Synthetic Data</a> 5 折；<a href="#ref-2224">病理 SSDA</a> 患者级 5 折 |
+| 外部或跨域测试 | 在训练未见的数据集或域上测试 | 息肉 PraNet 划分的 5 个测试集；<a href="#ref-2279">DiGDA</a> 用 ARCADE；<a href="#ref-2244">Free-Lunch</a> 从 COCO 迁移到 6 个专业域；ImageNet 的各种变体 |
+| 改变合成规模与比例 | 固定真实数据，扫描合成数据量 | <a href="#ref-2240">Azizi 等</a> 1.2M–12M；<a href="#ref-2262">Fake It</a> 1/10× 到 50×；<a href="#ref-2202">Few-Shot Synthetic Data</a> 0.5×–20×；<a href="#ref-2186">Tail-SD</a> 真实:合成 = 4:1；<a href="#ref-2270">SFD-Polyp</a> 1:1；<a href="#ref-2178">MGRAttn-RNO</a> 1:5 |
+
+### 6.4 生成器训练数据与测试集的隔离
+
+只有少数论文明确说明生成器没有接触测试数据：
+
+- <a href="#ref-2059">MRGen</a>：明确写道分割测试数据严格不参与生成器训练，以防信息泄露。
+- <a href="#ref-2272">EBIS</a>：扩散模型只在训练划分上训练，并保持严格的训练/测试分离。
+- <a href="#ref-2198">ISIC2019 长尾分类</a>：每一折都只用训练折微调生成器，测试折完全留出。
+- <a href="#ref-2276">DiffAtlas</a>：全量设置与少样本设置共用同一个测试集，便于比较。
+
+其余大多数论文没有说明。一项胸片合成研究（eBioMedicine 2024）发现，如果测试集与生成器的训练或调参数据来自同一来源，合成数据的收益会被明显高估。因此，在少样本或交叉验证设置中，生成器应当和下游模型一样，只能看到当前划分的训练数据。
+
+### 6.5 观察
+
+1. **自然图像基准高度集中**：ImageNet-1K、CUB、Stanford Cars、FGVC-Aircraft、CIFAR-LT 和 ImageNet-LT 覆盖了大多数分类工作，方法之间容易对比。
+2. **医学数据集分散且规模小**：同一模态往往只有一两篇论文使用，MM-WHS 只有 40 例，内部数据集无法复现。息肉分割的 PraNet 划分是少有的统一基准，适合作为医学方法比较的起点。
+3. **检测和三维数据证据最少**：检测基准各不相同，三维医学数据只有 Sketch2CT、MRGen 等少数工作涉及。
+4. **划分信息普遍不完整**：约六成论文没有完整报告划分数量，少样本抽样的随机种子和重复次数也常被省略，这直接影响复现。
+
+## 7. 评测：指标、协议与结果
+
+### 7.1 合成质量指标
 
 合成质量的评价可以分为四类：分布距离（FID、KID、CMMD）、样本级相似度（SSIM、PSNR、LPIPS）、语义对齐（CLIP 分数、预训练分类器判定的可识别度）和人工评估（专家打分、图灵测试）。在本文收录的工作中，FID 最常见，但几乎总是与下游任务性能一起报告，单靠 FID 下结论的论文很少。
 
@@ -257,7 +323,7 @@ authors: [MaybeRichard]
 
 关于 real vs real 的参照，多数论文只报告“合成 vs 真实”，在方法之间横比“越低越好”，隐含地把真实数据自身的参考水平当作 0。<a href="#ref-2100">ChimeraLoRA</a> 明确把参考集本身的 FID 记为 0.00。更严谨的做法见于眼科 OCT 生成工作 OCTFlow：用 bootstrap 估计真实数据自身的 FID 波动范围，再判断合成数据是否落在这个范围之内。
 
-### 6.2 比较协议
+### 7.2 比较协议
 
 论文报告的指标需要在统一设置下比较，跨数据集的结果不宜拼成总榜。分类工作通常报告 Top-1、balanced accuracy、尾类准确率或 OOD 准确率；检测报告 AP、召回率和跨域表现；分割报告 mIoU、Dice 或边界指标。比较时至少需要固定以下因素：
 
@@ -268,11 +334,11 @@ authors: [MaybeRichard]
 5. 下游模型结构、训练轮数、增强策略和随机种子。
 6. 合成数据是单独训练，还是与真实数据混合。
 7. 是否报告逐类别、跨域和外部测试集的表现。
-8. 测试集是否与生成器的训练、调参数据完全隔离。一项胸片合成研究（eBioMedicine 2024）发现，不隔离会高估合成数据的收益。
+8. 测试集是否与生成器的训练、调参数据完全隔离（见 6.4 节）。
 
 <a href="#ref-2090">UniDiffDA</a> 的价值正在于把这些变量拆开评估。<a href="#ref-2096">医学影像系统综述</a>则从更高层面提醒：合成数据的增益主要来自与真实数据互补，真实数据仍然承担核心监督作用。
 
-### 6.3 代表性结果
+### 7.3 代表性结果
 
 下表的数字来自论文各自的实验设置，用于理解方法的作用，不构成跨论文的排行榜。
 
@@ -298,9 +364,9 @@ authors: [MaybeRichard]
 
 整体来看，收益来自数据条件与任务模型的匹配：少样本分类看类内变化和分布贴合，长尾看尾类覆盖与决策边界，分割还必须验证图像与掩码的一致性。
 
-## 7. 局限与开放问题
+## 8. 局限与开放问题
 
-### 7.1 共同局限
+### 8.1 共同局限
 
 以下局限大多来自论文作者在 Limitations 或 Discussion 中的自述。
 
@@ -314,7 +380,7 @@ authors: [MaybeRichard]
 | 评测与外部验证不足 | 多数只在少量公开数据集和单一骨干上验证；存在发表偏倚 | <a href="#ref-2130">DAR-GDA</a> 只在两个数据集上验证；<a href="#ref-2097">When More Data Hurts</a> 指出成功结果更容易发表 |
 | 隐私与记忆 | 生成器可能复现训练样本或放大数据偏见 | 收录文献多做最近邻检查，缺少用攻击方法的定量评估 |
 
-### 7.2 开放问题
+### 8.2 开放问题
 
 1. **分割任务的样本效用度量**：分类已有基于梯度的效用度量（C2I），分割的反馈仍以不确定性为主，缺少区域级或边界级的效用定义。
 2. **生成预算与停止规则**：多篇工作观察到合成比例的收益会饱和，但几乎没有方法能在训练前预测饱和点，或在线决定何时停止生成。
@@ -323,7 +389,7 @@ authors: [MaybeRichard]
 5. **合成掩码的解剖合理性验证**：目前只有保守扰动等局部方案，缺少通用的验证方法。
 6. **可复现的医学评测协议**：固定真实数据预算与生成预算、报告合成比例曲线和外部验证，并保证测试集与生成器数据隔离。
 
-## 8. 总结
+## 9. 总结
 
 扩散模型数据增广正在从“生成更多图像”转向“生成对特定模型和特定缺口有用的图像”。三条主线已经清晰：生成器适配解决“像不像”，任务反馈与生成后筛选解决“有没有用”，图像—标注联合生成解决“标注对不对”。下一步的关键在于建立可复现的任务效用评测、可靠的样本筛选、结构一致的标注生成和跨域外部验证。
 
