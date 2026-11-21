@@ -46,17 +46,15 @@ authors: [MaybeRichard]
 
 ### 2.2 三轴分类
 
-本文用三条可交叉的轴线组织文献。一篇论文在“下游任务”上只归一个主类，在另两条轴上可以同时属于多个分支。
+本文用三个问题组织文献。先确定合成数据最终要帮助哪个下游任务，再判断真实数据缺少哪类样本，最后选择生成器在训练流程中的接入位置。一篇论文在“下游任务”上只归一个主类，在另两条轴上可以同时属于多个分支。
 
-| 轴 | 回答的问题 | 取值 | 决定了什么 |
+| 规划维度 | 具体要问什么 | 常见情况 | 直接影响 |
 |:--|:--|:--|:--|
-| 下游任务 | 合成数据服务于哪个任务 | 分类、目标检测、分割与稠密预测、表征学习、数据集蒸馏 | 评价指标，以及需要同步生成的标注类型 |
-| 数据条件 | 真实数据缺什么 | 少样本与数据稀缺、长尾与类别不平衡、跨域与域偏移、标签稀缺与半监督、持续学习与鲁棒性 | 生成要补的缺口 |
-| 方法阶段 | 生成器如何接入训练流程 | 图像条件编辑、任务反馈生成、图像—标注联合生成、生成后筛选 | 技术路线与主要风险 |
+| 下游任务 | 合成图像最后要帮助哪个模型完成什么任务 | 分类、目标检测、分割与稠密预测、表征学习、数据集蒸馏 | 选择评价指标，也决定是否需要同步生成类别、框或掩码 |
+| 数据条件 | 真实数据最缺什么 | 样本太少、尾类不足、域偏移、标签不足、鲁棒性不足 | 决定生成对象和要补的分布缺口 |
+| 方法阶段 | 生成器放在训练流程的哪一步 | 从真实图编辑、让任务模型反馈生成、图像与标注一起生成、生成后筛选 | 决定使用什么条件控制生成，以及如何检查和使用合成样本 |
 
 ![纳入文献在三条轴上的分布](three-axis-overview.svg)
-
-<small>任务按单一主类统计；数据条件和方法阶段允许交叉归属，计数不能相加。</small>
 
 ### 2.3 通用流水线
 
@@ -631,7 +629,7 @@ authors: [MaybeRichard]
 
 ## 参考文献
 
-将鼠标移到正文中的文献链接上，可以预览对应论文第一页的缩略图和标题。点击链接仍会跳转到文末参考文献。
+将鼠标移到正文中的文献链接上，可以查看对应论文的完整题名、作者、年份、期刊或会议以及来源链接。点击链接仍会跳转到文末参考文献。
 
 <details class="references-fold">
 <summary>参考文献（点击展开）</summary>
@@ -912,11 +910,10 @@ The Unmet Promise 提供了一个重要参照。在 FGVC-Aircraft 上，同规�
 .ref-hover-card {
   position: fixed;
   z-index: 1000;
-  display: grid;
-  grid-template-columns: 128px minmax(190px, 1fr);
-  gap: 12px;
-  width: min(430px, calc(100vw - 24px));
-  padding: 10px;
+  width: min(520px, calc(100vw - 24px));
+  max-height: min(390px, calc(100vh - 24px));
+  overflow: auto;
+  padding: 14px 16px;
   border: 1px solid #d8dee8;
   border-radius: 10px;
   background: #fff;
@@ -925,50 +922,29 @@ The Unmet Promise 提供了一个重要参照。在 FGVC-Aircraft 上，同规�
   pointer-events: auto;
 }
 .ref-hover-card[hidden] { display: none; }
-.ref-hover-media {
-  width: 128px;
-  height: 176px;
-  overflow: hidden;
-  border: 1px solid #e2e7ee;
-  border-radius: 4px;
-  background: #f5f7fa;
+.ref-hover-citation {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.65;
 }
-.ref-hover-thumb {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: #fff;
-}
-.ref-hover-missing {
-  display: grid;
-  height: 100%;
-  padding: 12px;
-  place-items: center;
+.ref-hover-citation .ref-no {
+  margin-right: 4px;
   color: #657487;
-  font-size: 12px;
-  line-height: 1.5;
-  text-align: center;
 }
-.ref-hover-info { min-width: 0; }
-.ref-hover-title {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 7;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.5;
+.ref-hover-citation strong { font-weight: 700; }
+.ref-hover-citation a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .ref-hover-note {
-  margin-top: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #e8edf2;
   color: #657487;
   font-size: 12px;
   line-height: 1.5;
-}
-@media (max-width: 600px) {
-  .ref-hover-card { grid-template-columns: 96px minmax(150px, 1fr); }
-  .ref-hover-media { width: 96px; height: 136px; }
 }
 </style>
 
@@ -983,7 +959,7 @@ The Unmet Promise 提供了一个重要参照。在 FGVC-Aircraft 上，同规�
     card.className = 'ref-hover-card';
     card.hidden = true;
     card.setAttribute('role', 'tooltip');
-    card.innerHTML = '<div class="ref-hover-media"><img class="ref-hover-thumb" alt=""><div class="ref-hover-missing" hidden>本地暂未找到 PDF 缩略图</div></div><div class="ref-hover-info"><div class="ref-hover-title"></div><div class="ref-hover-note">论文第一页缩略图。点击正文引用可跳转到文末参考文献。</div></div>';
+    card.innerHTML = '<div class="ref-hover-citation"></div><div class="ref-hover-note">完整参考文献信息。点击正文引用仍可跳转到文末参考文献。</div>';
     document.body.appendChild(card);
     card.addEventListener('pointerenter', function () { window.clearTimeout(hideTimer); });
     card.addEventListener('pointerleave', scheduleHide);
@@ -1001,26 +977,13 @@ The Unmet Promise 提供了一个重要参照。在 FGVC-Aircraft 上，同规�
     if (!link || link.closest('.refs')) return;
     var href = link.getAttribute('href') || '';
     if (href.indexOf('#ref-') !== 0) return;
-    var id = href.slice(1);
-    var reference = document.getElementById(id);
+    var reference = document.getElementById(href.slice(1));
     if (!reference) return;
     var current = getCard();
-    var image = current.querySelector('.ref-hover-thumb');
-    var missing = current.querySelector('.ref-hover-missing');
-    var title = current.querySelector('.ref-hover-title');
-    var heading = reference.querySelector('strong');
-    title.textContent = (heading || reference).textContent.trim();
-    image.hidden = false;
-    missing.hidden = true;
-    image.src = 'ref-thumbnails/' + id + '.jpg';
-    image.onload = function () {
-      image.hidden = false;
-      missing.hidden = true;
-    };
-    image.onerror = function () {
-      image.hidden = true;
-      missing.hidden = false;
-    };
+    var citation = reference.cloneNode(true);
+    citation.removeAttribute('id');
+    citation.className = 'ref-hover-citation';
+    current.querySelector('.ref-hover-citation').replaceChildren(citation);
     current.hidden = false;
     var rect = link.getBoundingClientRect();
     var width = current.offsetWidth;
@@ -1035,7 +998,8 @@ The Unmet Promise 提供了一个重要参照。在 FGVC-Aircraft 上，同规�
 
   document.addEventListener('pointerover', function (event) {
     var link = event.target.closest && event.target.closest('a[href^="#ref-"]');
-    if (link) show(link);
+    if (!link || (event.relatedTarget && link.contains(event.relatedTarget))) return;
+    show(link);
   });
   document.addEventListener('pointerout', function (event) {
     var link = event.target.closest && event.target.closest('a[href^="#ref-"]');
