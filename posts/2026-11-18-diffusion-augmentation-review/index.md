@@ -1,17 +1,17 @@
 ---
 title: 扩散模型合成图像用于数据增强的研究脉络与方法比较
-date: 2026-11-18
-summary: 扩散模型数据增广正从“生成更多图像”转向“生成对下游任务有用的图像”。本文在此前 Zotero 候选库基础上新增 12 篇证据，当前纳入 95 条直接相关证据（93 篇已读全文），按下游任务、数据条件和方法阶段三轴梳理 2023—2026 年的研究脉络，并比较代表性方法。
+date: 2026-11-21
+summary: 扩散模型数据增广正从“生成更多图像”转向“生成对下游任务有用的图像”。本文在原有证据上加入 50 篇数据选择与数据集蒸馏论文，去重后形成 141 条直接相关证据，按下游任务、数据条件和方法阶段三轴梳理 2023—2026 年的研究脉络。
 tags: [扩散模型, 合成数据, 数据增强, 计算机视觉, 综述]
-tldr: 扩散模型数据增广正从“生成更多图像”转向“生成对特定模型、特定缺口有用的图像”；本文用任务、数据条件、方法阶段三条轴线梳理 95 篇文献，并比较这一转向中的代表方法。
+tldr: 扩散模型数据增广正从“生成更多图像”转向“生成对特定模型、特定缺口有用的图像”；本文加入数据选择、数据剪枝和扩散式数据集蒸馏，比较生成、筛选与压缩三条相互关联但评价目标不同的路线。
 authors: [MaybeRichard]
 ---
 
 ## 摘要
 
-扩散模型让“用生成图像扩充训练集”从个别数据集上的技巧，变成了覆盖分类、分割、检测和表征学习的通用手段。本文基于 Zotero 中 95 条与图像合成增广直接相关的文献（其中 93 篇读取了全文），梳理 2023—2026 年的研究脉络，并比较代表性方法。文献按三条可交叉的轴线组织：主任务决定评价指标，数据条件决定生成要补的缺口，方法阶段决定生成器如何接入训练流程。
+扩散模型让“用生成图像扩充训练集”从个别数据集上的技巧，变成了覆盖分类、分割、检测和表征学习的通用手段。本文在原有 95 条直接相关证据的基础上，加入 50 篇数据选择、数据剪枝和扩散式数据集蒸馏论文，去重后形成 141 条直接相关证据。新增条目均已在 Zotero 中核对作者、出版物、条目类型和 PDF 附件。文献按三条可交叉的轴线组织：主任务决定评价指标，数据条件决定生成要补的缺口，方法阶段决定生成器如何接入训练流程。
 
-研究重心经历了三次转移。2023 年的工作证明，合成图像本身可以作为训练数据。2024 年转向在少样本条件下兼顾保真度与多样性。2025—2026 年进入任务感知阶段：让下游模型的反馈引导生成，或在生成后筛选真正有用的样本，并扩展到长尾识别和医学稠密预测。
+研究重心经历了三次转移。2023 年的工作证明，合成图像本身可以作为训练数据。2024 年转向在少样本条件下兼顾保真度与多样性。2025—2026 年进入任务感知阶段：让下游模型的反馈引导生成，或在生成后筛选真正有用的样本，并扩展到长尾识别和医学稠密预测。与此同时，数据选择和数据集蒸馏形成了独立的参照系，前者强调真实数据与合成候选之间的条件互补，后者强调用极少的合成样本替代大数据集。
 
 比较结果显示，在真实数据预算、生成器和下游模型固定时，样本选择和标签有效性通常比单纯增加合成数量更关键。部分实验只增强训练早期未学会的 30%–40% 样本，或在特定 LVIS 设置中只用约 6% 的生成预算就取得收益。但各论文在真实数据量、生成器状态、筛选预算和混合方式上差异很大，指标不宜直接横向比较。文章最后归纳了六类风险，并提出下一步的关键：可复现的任务效用评测、可靠的样本筛选、结构一致的标注生成，以及跨域外部验证。
 
@@ -65,7 +65,7 @@ authors: [MaybeRichard]
 |:--|:--|:--|:--|
 | 2023 | 合成图像能否直接当训练数据 | <a href="#ref-2240">Azizi 等</a>、<a href="#ref-2162">GIF</a>、<a href="#ref-2262">Fake It</a>、<a href="#ref-364">DiffuMask</a>、<a href="#ref-2166">DatasetDM</a>、<a href="#ref-2258">StableRep</a> | 类条件或文生图合成用于分类和表征学习；从交叉注意力中免费获得掩码 |
 | 2024 | 如何兼顾保真度与多样性、适配少样本 | <a href="#ref-2158">DA-Fusion</a>、<a href="#ref-123">DiffuseMix</a>、<a href="#ref-2154">Diff-Mix</a>、<a href="#ref-2150">DataDream</a>、<a href="#ref-2238">DiffAug</a>、<a href="#ref-2260">SynCLR</a> | 从真实图编辑、类间混合、LoRA 少样本适配 |
-| 2025—2026 | 生成什么样的样本对模型有用 | <a href="#ref-2118">Diff-II</a>、<a href="#ref-2120">MRCA</a>、<a href="#ref-2098">DBG</a>、<a href="#ref-2122">CORAL</a>、<a href="#ref-2130">DAR-GDA</a>、<a href="#ref-2190">C2I</a>、<a href="#ref-2250">Post-Generation Curation</a>、<a href="#ref-2090">UniDiffDA</a> | 任务反馈生成、生成后筛选、修正生成器的长尾偏差、系统性评测与失效分析 |
+| 2025—2026 | 生成什么样的样本对模型有用，以及哪些样本值得保留 | <a href="#ref-2118">Diff-II</a>、<a href="#ref-2120">MRCA</a>、<a href="#ref-2098">DBG</a>、<a href="#ref-2130">DAR-GDA</a>、<a href="#ref-2190">C2I</a>、<a href="#ref-116">TADA</a>、<a href="#ref-2500">DisCL</a>、<a href="#ref-2504">High-dimensional Selection</a>、<a href="#ref-2505">Pool-Select-Refine</a>、<a href="#ref-2291">FROST</a>、<a href="#ref-2506">TATC</a>、<a href="#ref-2509">SynQuE</a>、<a href="#ref-2106">IMS3</a> | 任务反馈生成、生成后筛选、条件边际效用、数据剪枝、扩散式数据集蒸馏和成本审计 |
 
 ### 3.1 2023：从生成图像走向生成训练数据
 
@@ -191,6 +191,23 @@ authors: [MaybeRichard]
 
 <a href="#ref-2291">FROST</a>、<a href="#ref-2293">CCDM</a>、<a href="#ref-2292">LSADA</a> 和 <a href="#ref-2294">SENSE</a> 还应单独看作“评测与筛选”路线。FROST 和 CCDM 直接估计候选样本或候选集合的下游效用，LSADA 用学习状态决定生成强度，SENSE 用场景密度、实例细节和最优传输判断分割数据是否值得使用。它们的核心贡献是回答“哪些合成数据有用”，不等同于只比较生成器图像质量。筛选与传统的数据选择研究是同一类思路，已有工作直接借鉴：<a href="#ref-116">TADA</a> 引用了 coreset 选择库 DeepCore，<a href="#ref-2190">C2I</a> 沿用了基于梯度的影响力估计。把 coreset、影响力函数、主动学习采集函数等方法系统地迁移到合成数据上，目前还缺少统一评测。
 
+
+### 4.5.1 数据选择与蒸馏：从“挑图”到条件边际效用
+
+新增的 50 篇论文把“生成后筛选”拆成了几个层次。它们不再把图像逼真度当成唯一目标，而是区分候选池是否覆盖真实分布、单个样本对当前训练的效用，以及一个集合是否同时满足覆盖和低冗余。
+
+| 层次 | 要回答的问题 | 代表工作 | 可迁移到合成数据的信号 |
+|:--|:--|:--|:--|
+| 数据集级评估 | 这一批合成数据整体是否值得进入下游训练 | <a href="#ref-2504">High-dimensional Analysis</a>、<a href="#ref-2509">SynQuE</a>、<a href="#ref-2510">Yamaguchi</a> | 协方差匹配、无标注质量估计、真实与合成的互补性 |
+| 样本级任务效用 | 当前模型真正需要哪一张合成图 | <a href="#ref-2291">FROST</a>、<a href="#ref-2506">TATC</a>、<a href="#ref-2508">IDS</a>、<a href="#ref-2501">SDS</a> | 真实梯度锚点、目标覆盖增益、信息瓶颈权重、图像—标注一致性 |
+| 集合级覆盖与冗余 | 选出的样本是否覆盖缺口，是否只是重复 canonical mode | <a href="#ref-2250">Post-Generation Curation</a>、<a href="#ref-2522">CCS</a>、<a href="#ref-2524">D² Pruning</a>、<a href="#ref-2529">InfoMax</a>、<a href="#ref-2507">Mind the Tail</a> | 类内覆盖、视觉概念支持、难度与邻域支持、集合内部冗余 |
+| 动态选择 | 样本价值是否随训练阶段变化 | <a href="#ref-116">TADA</a>、<a href="#ref-2500">DisCL</a>、<a href="#ref-2525">InfoBatch</a> | 学习状态、guidance level、动态重加权和无偏梯度估计 |
+| 成本审计 | 筛选器本身是否抵消了减少训练数据的收益 | <a href="#ref-2511">Are Coreset Selection Methods Worth Their Cost?</a> | 生成、特征提取、梯度计算、筛选和下游训练的总 wall-clock |
+
+这几层不能压成一个“质量分数”。FROST 和 TATC 关注的是已有训练集条件下的边际收益，CCS、D² Pruning 和 InfoMax 关注的是集合覆盖与冗余，SynQuE 关注的是在不启动完整下游训练时如何比较候选数据集。把它们组合进扩散增广时，较稳妥的顺序是先做可靠性门控，再计算相对真实集的互补度，最后进行带类别和覆盖约束的集合选择。
+
+数据选择和数据集蒸馏也需要分开。数据剪枝保留真实样本，数据蒸馏优化或生成新的样本；前者更容易保留标签真实性，后者更容易改变分布和表达能力。<a href="#ref-2512">Unifying Dataset Pruning and Distillation</a>、<a href="#ref-2544">Rethinking Dataset Distillation for Classification</a> 和 <a href="#ref-2545">Hard Truths about Soft Labels</a> 都说明，蒸馏结果必须固定标签协议、验证骨干和预算，不能直接拿来替代真实数据选择的结论。
+
 ### 4.6 长尾：修正生成器，还是修正分类器
 
 长尾场景有一个容易被忽略的嵌套问题：生成器本身也是在长尾数据上训练的。<a href="#ref-2122">CORAL</a> 发现尾部类的潜表征与头部类重叠，导致生成的尾部类图像“借用”了头部类特征，而且这不只是尾部样本少的问题，类别间的相对不平衡本身就有显著影响。文献因此分成两条线。
@@ -234,6 +251,9 @@ authors: [MaybeRichard]
 | <a href="#ref-2283">S2-RL</a> | 数据集蒸馏 | GRPO 微调扩散策略，样本级与集合级双奖励 | 以压缩率和验证集性能评估 |
 | <a href="#ref-2285">DIVER</a> | 数据集蒸馏 | 语义继承、引导、融合，去除架构特定噪声 | 以 IPC 和验证集性能评估 |
 | <a href="#ref-2287">SFM</a> | 数据集蒸馏 | 统计流匹配替代线性梯度匹配 | 面向预训练自监督模型的压缩评估 |
+
+
+新增的扩散式蒸馏工作可以按生成先验、任务引导和评测协议三类理解。<a href="#ref-2532">Minimax Diffusion</a>、<a href="#ref-2533">D4M</a>、<a href="#ref-2534">RDED</a> 和 <a href="#ref-2536">MGD³</a> 主要处理代表性与多样性；<a href="#ref-2535">Influence-Guided Diffusion</a>、<a href="#ref-2539">DAP</a>、<a href="#ref-2540">Learnability-Guided Diffusion</a>、<a href="#ref-2541">Influence Matching</a> 和 <a href="#ref-2542">DMGD</a> 把任务效用或统计匹配写进生成过程；<a href="#ref-2538">Pushforward Optimal Quantization</a>、<a href="#ref-2544">Rethinking Dataset Distillation for Classification</a> 和 <a href="#ref-2545">Hard Truths about Soft Labels</a> 则提醒我们，压缩率、软标签和验证模型会显著改变结论。它们适合做生成式蒸馏基线，不应与 Real + Synthetic augmentation 的普通增广结果混排。
 
 数据集蒸馏与生成式增广都按训练效用合成数据，只是预算方向相反。蒸馏结果需要同时报告压缩比例、初始化方式和验证骨干，不能与普通增广的准确率直接比较。
 
@@ -397,7 +417,7 @@ authors: [MaybeRichard]
 
 整体来看，收益来自数据条件与任务模型的匹配：少样本分类看类内变化和分布贴合，长尾看尾类覆盖与决策边界，分割还必须验证图像与掩码的一致性。
 
-### 7.5 本轮新增九篇全文核对
+### 7.5 前一轮新增九篇全文核对
 
 下面的表格只记录本轮新增的 9 篇，结果均来自论文正文或附录。数字保留论文原实验设置，不能拼成跨数据集总榜。
 
@@ -413,7 +433,26 @@ authors: [MaybeRichard]
 | <a href="#ref-2297">Closed-Set Equivalence</a> | 在每个 base training set 上从头训练闭集 EDM/DiT，并与真实增广和开放集 SD3/CIFAKE 对照，拟合合成数据量相当于多少真实数据。 | BloodMNIST；CIFAR-10 的 1%、10%、50%、100% 子集；ImageNet-100 的多种 base size。 | 闭集合成增广在三个数据集都能提升分类，但达到同等收益需要更多合成图；固定 base size 后收益快速边际递减。CIFAR-10 上闭集 FID 8.33，明显低于开放集 27.15；ImageNet-100 则开放集更强。 | 等效关系是经验拟合、没有理论保证；实验受算力限制，数据集规模相对小，闭集模型在复杂 ImageNet-100 上仍有明显失真。 | 论文未给出已确认的作者代码仓库。 |
 | <a href="#ref-2298">The Unmet Promise</a> | 用同一 LAION-2B 上游来源比较 Stable Diffusion 1.5 生成的目标合成图与直接检索的目标真实图，控制适配数据规模并做 CLIP 微调。 | ImageNet-1K、DTD、FGVC-Aircraft、Stanford Cars、Oxford Flowers102 分类。 | FGVC-Aircraft 上 139K 合成图把线性探测从 64.9% 提到 68.7%，同规模检索真实图提高到 82.7%；DTD 合成图使 zero-shot 56.3%→59.6%。在 ImageNet、Cars、Flowers 等设置中合成图有时反而伤害 zero-shot；达到 15K 检索真实图效果需要约 500K 合成图。 | 检索基线依赖生成器上游数据可访问；若上游数据不可用，检索不可执行。合成图仍可能含生成伪影和类别细节错误。 | [作者代码](https://github.com/scottgeng00/unmet-promise)，已归档到 `outputs/synthetic_augmentation_archive_2026-11-19_complete/code/new_candidates_2026-11-19/unmet-promise`。 |
 
-这 9 篇共同补上了综述中原先缺少的三条证据链：视觉逼真度与训练效用并不等价，生成过程需要由任务反馈或条件设计约束，生成后必须用任务相关指标而不是只看 FID 来筛选。对分割而言，保留真实标签对应的困难区域，或通过最优传输重分配标签，是目前更直接的标签有效性控制方案。本轮另将 DreamDA、DistDiff 和 CBDM 三篇分类基准补入第 7.4 节并加入参考文献。
+这 9 篇共同补上了综述中原先缺少的三条证据链：视觉逼真度与训练效用并不等价，生成过程需要由任务反馈或条件设计约束，生成后必须用任务相关指标而不是只看 FID 来筛选。对分割而言，保留真实标签对应的困难区域，或通过最优传输重分配标签，是目前更直接的标签有效性控制方案。前一轮另将 DreamDA、DistDiff 和 CBDM 三篇分类基准补入第 7.4 节并加入参考文献。
+
+
+### 7.6 数据选择与扩散式数据集蒸馏新增证据
+
+这一批 50 篇论文中，17 篇属于直接主线，17 篇是数据选择与数据剪枝基线，16 篇属于扩散式数据集蒸馏。下面按用途列出可直接用于实验设计的证据。这里的数字只保留论文明确报告的设置，不把不同预算下的准确率拼成总榜。
+
+| 组别 | 代表论文 | 主要证据 | 对合成增广实验的作用 |
+|:--|:--|:--|:--|
+| 直接主线 | <a href="#ref-2291">FROST</a>、<a href="#ref-2506">TATC</a>、<a href="#ref-2508">IDS</a> | 真实梯度锚定、训练感知目标覆盖和信息瓶颈重加权，都把“有用”定义为相对当前训练集的增益 | 适合作为任务效用筛选和真实锚点基线 |
+| 直接主线 | <a href="#ref-2504">High-dimensional Analysis</a>、<a href="#ref-2509">SynQuE</a>、<a href="#ref-2510">Yamaguchi</a> | 协方差偏移可能比均值偏移更影响泛化；可以在没有完整下游训练时估计合成数据集质量；纯合成同规模训练可能弱于真实数据，但与真实数据混合能补充决策边界 | 适合作为集合级分布诊断和候选池排序基线 |
+| 直接主线 | <a href="#ref-2250">Post-Generation Curation</a>、<a href="#ref-2500">DisCL</a>、<a href="#ref-2501">SDS</a>、<a href="#ref-2502">UniDD</a> | 生成后的 fidelity—diversity 筛选、从合成到真实的 curriculum、分割图像—标注一致性筛选和跨任务过滤 | 适合作为分类、分割和动态筛选的直接对照 |
+| 选择基线 | <a href="#ref-2515">CRAIG</a>、<a href="#ref-2516">GLISTER</a>、<a href="#ref-2523">TRAK</a>、<a href="#ref-2526">DsDm</a> | 通过梯度近似、验证集目标、数据归因或模型行为直接估计训练价值 | 用来检验“任务效用”是否比图像质量更接近最终性能 |
+| 选择基线 | <a href="#ref-2521">Moderate Coreset</a>、<a href="#ref-2522">CCS</a>、<a href="#ref-2524">D² Pruning</a>、<a href="#ref-2529">InfoMax</a>、<a href="#ref-2507">Mind the Tail</a> | 中等难度、整体覆盖、难度—多样性联合、重要性减冗余和稀疏概念支持 | 用来防止只选高置信度原型或只选困难噪声样本 |
+| 扩散式蒸馏 | <a href="#ref-2531">SRe²L</a>、<a href="#ref-2532">Minimax Diffusion</a>、<a href="#ref-2533">D4M</a>、<a href="#ref-2534">RDED</a>、<a href="#ref-2536">MGD³</a> | 通过恢复、minimax、解耦扩散、真实 patch 和 mode guidance 构造紧凑合成集 | 作为“用新样本替代大数据集”的生成式压缩基线 |
+| 扩散式蒸馏 | <a href="#ref-2535">Influence-Guided Diffusion</a>、<a href="#ref-2539">DAP</a>、<a href="#ref-2540">Learnability-Guided Diffusion</a>、<a href="#ref-2541">Influence Matching</a>、<a href="#ref-2542">DMGD</a>、<a href="#ref-2543">RETA</a> | 影响函数、Mercer kernel、learnability、最终参数影响、语义—分布匹配和动态检索共同把任务效用写进生成或筛选过程 | 适合启发 real + synthetic 条件边际收益方法，但不能直接套用 IPC 结论 |
+
+从这些论文可以抽出一个更严格的实验协议。除 Real-only 和 Full synthetic 外，至少应比较随机子集、类别均衡随机子集、质量分数、CLIP 相似度、k-center、一个任务效用选择器和一个覆盖—冗余选择器，并同时报告候选池规模、保留率、生成成本、筛选成本、下游训练成本及总 wall-clock。<a href="#ref-2511">Are Coreset Selection Methods Worth Their Cost?</a> 表明，筛选精度的提升不能脱离筛选器本身的计算代价解释。
+
+对长尾和医学任务，还需要报告 head/medium/tail 或病灶大小分组的结果。<a href="#ref-2513">When Sample Selection Bias Precipitates Model Collapse</a> 说明，如果验证器只看到少量而且偏斜的真实锚点，选择过程可能会进一步删除全局上重要的尾部模式。因此，合成数据筛选应同时估计可靠性、不确定性、类内覆盖和集合冗余，不能只按单个样本的困难度排序。
 
 ## 8. 局限与开放问题
 
@@ -428,6 +467,7 @@ authors: [MaybeRichard]
 | 效用代理不可靠 | 奖励、置信度、FID 都只是“有用”的近似；关键假设可能不成立 | <a href="#ref-2283">S2-RL</a>（奖励只是效用近似）；<a href="#ref-2112">The Learnability Gap</a>（只诊断未解决）；<a href="#ref-2258">StableRep</a>（尚不理解为何有效） |
 | 保真度与多样性冲突 | 强条件提高标签稳定性却可能复制训练集；弱条件增加变化却带来类别混淆 | <a href="#ref-2097">When More Data Hurts</a> 将其归为“标签边界混淆”等失效模式 |
 | 越稀缺越难生效 | 极端稀缺时合成样本倾向于强化已有决策边界，而不是扩展到困难区域 | <a href="#ref-2194">Limitations in Data-Scarce Domains</a>；<a href="#ref-2118">Diff-II</a> 在不平衡因子达到 100 时增益下降 |
+| 选择偏差与模式坍塌 | 验证器或真实锚点过于局部时，筛选会删除尾部模式并放大分布偏差 | <a href="#ref-2513">When Sample Selection Bias</a>；<a href="#ref-2507">Mind the Tail</a>；<a href="#ref-2504">High-dimensional Selection</a> |
 | 评测与外部验证不足 | 多数只在少量公开数据集和单一骨干上验证；存在发表偏倚 | <a href="#ref-2130">DAR-GDA</a> 只在两个数据集上验证；<a href="#ref-2097">When More Data Hurts</a> 指出成功结果更容易发表 |
 | 隐私与记忆 | 生成器可能复现训练样本或放大数据偏见 | 收录文献多做最近邻检查，缺少用攻击方法的定量评估 |
 | 视觉质量与训练效用脱钩 | 更高的提示词遵循和审美评分可能伴随纹理、高频细节与覆盖下降 | <a href="#ref-2290">When Pretty Isn't Useful</a>；<a href="#ref-2298">The Unmet Promise</a> |
@@ -447,17 +487,17 @@ authors: [MaybeRichard]
 
 ## 9. 总结
 
-扩散模型数据增广正在从“生成更多图像”转向“生成对特定模型和特定缺口有用的图像”。三条主线已经清晰：生成器适配解决“像不像”，任务反馈与生成后筛选解决“有没有用”，图像—标注联合生成解决“标注对不对”。下一步的关键在于建立可复现的任务效用评测、可靠的样本筛选、结构一致的标注生成和跨域外部验证。
+扩散模型数据增广正在从“生成更多图像”转向“生成对特定模型和特定缺口有用的图像”。四条主线已经清晰：生成器适配解决“像不像”，任务反馈与生成后筛选解决“有没有用”，图像—标注联合生成解决“标注对不对”，数据选择与蒸馏解决“哪些样本值得保留以及能否用更小集合替代原数据”。下一步的关键在于建立可复现的任务效用评测、可靠的样本筛选、结构一致的标注生成和跨域外部验证。
 
 ## 附录
 
 <details markdown="1">
 <summary>A. 文献范围与统计口径（点击展开）</summary>
 
-本文的文献来自作者整理的 Zotero 文献库「合成图像用于数据增强」子集，以及更广义的 Diffusion Model 子集中与图像合成增广直接相关的少量补充。本轮在此前主体证据上新增 12 篇，并逐篇读取摘要、正文和附录。当前纳入 95 条主体证据，其中 93 篇读取了全文 PDF；参考文献列表共 101 条，包括 6 条背景文献和 95 条主体记录。
+本文的文献来自作者整理的 Zotero 文献库「合成图像用于数据增强」子集，以及更广义的 Diffusion Model 子集中与图像合成增广直接相关的少量补充。原主体证据为 95 条，新增的数据选择与数据集蒸馏清单包含 50 篇，其中 4 篇与原文献重合，因此去重后共有 141 条主体记录。新增清单按直接主线 17 篇、方法基线 17 篇和扩散式数据集蒸馏 16 篇归类。原主体中 93 篇已读取全文 PDF；新增 50 篇已完成作者、出版物、条目类型和 PDF 可读性核验，本文先按已审计证据纳入，不把它们全部计入“全文已读”统计。参考文献列表共 147 条，包括 6 条背景文献和 141 条主体记录。
 
 - 按质量筛选规则，Sensors 2026 的 Propose-and-Select，以及 ADuLTS、Synthetic Imagery 和 Triple-Prompt 未纳入核心统计。
-- 下游任务按单一主类统计：分类 48 条、目标检测 3 条、分割与稠密预测 26 条、表征学习 2 条、数据集蒸馏 8 条、综述与评测 6 条，另有 WILD-Diffusion、Sketch2CT 两条生成器与领域基础记录。
+- 原 95 条主体证据的下游任务按单一主类统计：分类 48 条、目标检测 3 条、分割与稠密预测 26 条、表征学习 2 条、数据集蒸馏 8 条、综述与评测 6 条，另有 WILD-Diffusion、Sketch2CT 两条生成器与领域基础记录。新增 50 篇选择与蒸馏论文采用第 7.6 节的三组统计，避免把数据选择基线和普通增广结果直接混为一个任务总数。
 - 数据条件为交叉索引：少样本与数据稀缺 22 条、长尾与类别不平衡 24 条、跨域与域偏移 16 条、标签稀缺与半监督 7 条、持续学习与鲁棒性 6 条。
 - 以下两条暂无全文，相关描述依据题目、摘要或出版页面：Generative Active Learning via Bayesian Acquisition for Improving the Efficiency of Synthetic Data；Class-Mixed Diffusion Augmentation for Shortcut-Breaking in Continual Learning。
 - 正式接收、预印本、workshop 和 OpenReview 在审状态按 Zotero 条目和来源页面分别标注。
@@ -624,6 +664,52 @@ authors: [MaybeRichard]
 <li id="ref-2299"><span class="ref-no">[99]</span> <strong>DreamDA: Generative Data Augmentation with Diffusion Models</strong>（2024；分类、少样本与数据稀缺；<a href="https://arxiv.org/abs/2403.12803">来源</a>；<a href="https://github.com/yunxiangfu2001/DreamDA">代码</a>）</li>
 <li id="ref-2300"><span class="ref-no">[100]</span> <strong>DistDiff: Distribution-Aware Diffusion for Data Expansion</strong>（2024；分类、分布感知生成；<a href="https://arxiv.org/abs/2403.06741">来源</a>；<a href="https://github.com/haoweiz23/DistDiff">代码</a>）</li>
 <li id="ref-2301"><span class="ref-no">[101]</span> <strong>Class-Balancing Diffusion Models for Long-Tailed Data Generation (CBDM)</strong>（2023；分类、长尾与类别不平衡；<a href="https://arxiv.org/abs/2305.00562">来源</a>；<a href="https://github.com/qym7/CBDM-">代码</a>）</li>
+<li id="ref-2500"><span class="ref-no">[102]</span> <strong>Diffusion Curriculum: Synthetic-to-Real Data Curriculum via Image-Guided Diffusion</strong>（2025；IEEE/CVF International Conference on Computer Vision (ICCV 2025)；Yijun Liang et al.；<a href="https://openaccess.thecvf.com/content/ICCV2025/papers/Liang_Diffusion_Curriculum_Synthetic-to-Real_Data_Curriculum_via_Image-Guided_Diffusion_ICCV_2025_paper.pdf">来源</a>；<a href="https://github.com/tianyi-lab/DisCL">代码</a>）</li>
+<li id="ref-2501"><span class="ref-no">[103]</span> <strong>A Training-free Synthetic Data Selection Method for Semantic Segmentation</strong>（2025；arXiv；Hao Tang et al.；<a href="https://arxiv.org/pdf/2501.15201.pdf">来源</a>；<a href="https://github.com/tanghao2000/SDS">代码</a>）</li>
+<li id="ref-2502"><span class="ref-no">[104]</span> <strong>Towards Universal Dataset Distillation via Task-Driven Diffusion</strong>（2025；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2025)；Qi Ding et al.；<a href="https://openaccess.thecvf.com/content/CVPR2025/papers/Qi_Towards_Universal_Dataset_Distillation_via_Task-Driven_Diffusion_CVPR_2025_paper.pdf">来源</a>）</li>
+<li id="ref-2503"><span class="ref-no">[105]</span> <strong>Diffusion-Augmented Coreset Expansion for Scalable Dataset Distillation</strong>（2024；arXiv；Ali Abbasi et al.；<a href="https://arxiv.org/pdf/2412.04668.pdf">来源</a>）</li>
+<li id="ref-2504"><span class="ref-no">[106]</span> <strong>High-dimensional Analysis of Synthetic Data Selection</strong>（2026；International Conference on Learning Representations (ICLR 2026)；Parham Rezaei et al.；<a href="https://arxiv.org/pdf/2510.08123.pdf">来源</a>；<a href="https://github.com/Rezaei-Parham/Synthetic-Selection">代码</a>）</li>
+<li id="ref-2505"><span class="ref-no">[107]</span> <strong>Pool-Select-Refine: Allocation-Aware Generative Dataset Distillation with Soft-Label-Guided Latent Refinement</strong>（2026；arXiv；Wenmin Li et al.；<a href="https://arxiv.org/pdf/2606.01920.pdf">来源</a>）</li>
+<li id="ref-2506"><span class="ref-no">[108]</span> <strong>Training-Aware Target Coverage for Synthetic Data Selection</strong>（2026；arXiv；Yang Ba et al.；<a href="https://arxiv.org/pdf/2610.00814.pdf">来源</a>；<a href="https://github.com/YangBa78/Training-Aware-Target-Coverage-for-Synthetic-Data-Selection">代码</a>）</li>
+<li id="ref-2507"><span class="ref-no">[109]</span> <strong>Mind the Tail: Data Selection Through Sparse Concepts</strong>（2026；arXiv；Ziheng Zhang et al.；<a href="https://arxiv.org/pdf/2610.21007.pdf">来源</a>）</li>
+<li id="ref-2508"><span class="ref-no">[110]</span> <strong>Informative Synthetic Data Generation for Thorax Disease Classification</strong>（2025；Proceedings of the 41st Conference on Uncertainty in Artificial Intelligence (UAI 2025)；Yancheng Wang et al.；<a href="https://raw.githubusercontent.com/mlresearch/v286/main/assets/wang25g/wang25g.pdf">来源</a>；<a href="https://github.com/Statistical-Deep-Learning/IDS">代码</a>）</li>
+<li id="ref-2509"><span class="ref-no">[111]</span> <strong>SynQuE: Estimating Synthetic Dataset Quality Without Annotations</strong>（2026；Transactions on Machine Learning Research；Arthur Chen et al.；<a href="https://arxiv.org/pdf/2511.03928.pdf">来源</a>；<a href="https://github.com/r2llab/SynQuE">代码</a>）</li>
+<li id="ref-2510"><span class="ref-no">[112]</span> <strong>Analyzing Diffusion Models on Synthesizing Training Datasets</strong>（2024；Proceedings of Machine Learning Research, Volume 260 (ACML 2024)；Shin&#x27;ya Yamaguchi et al.；<a href="https://raw.githubusercontent.com/mlresearch/v260/main/assets/yamaguchi25a/yamaguchi25a.pdf">来源</a>）</li>
+<li id="ref-2511"><span class="ref-no">[113]</span> <strong>Are Coreset Selection Methods Worth Their Cost?</strong>（2026；arXiv；Yangze Liu et al.；<a href="https://arxiv.org/pdf/2609.22894.pdf">来源</a>）</li>
+<li id="ref-2512"><span class="ref-no">[114]</span> <strong>Unifying Dataset Pruning and Distillation for Efficient Large-scale Compression</strong>（2026；Proceedings of the 43rd International Conference on Machine Learning (ICML 2026)；Lingao Xiao et al.；<a href="https://arxiv.org/pdf/2502.06434.pdf">来源</a>）</li>
+<li id="ref-2513"><span class="ref-no">[115]</span> <strong>When Sample Selection Bias Precipitates Model Collapse</strong>（2026；Proceedings of the 43rd International Conference on Machine Learning (ICML 2026)；Xinbao Qiao et al.；<a href="https://arxiv.org/pdf/2606.13732.pdf">来源</a>）</li>
+<li id="ref-2514"><span class="ref-no">[116]</span> <strong>Data Shapley: Equitable Valuation of Data for Machine Learning</strong>（2019；International Conference on Machine Learning (ICML 2019)；Amirata Ghorbani et al.；<a href="https://proceedings.mlr.press/v97/ghorbani19c/ghorbani19c.pdf">来源</a>；<a href="https://github.com/amiratag/DataShapley">代码</a>）</li>
+<li id="ref-2515"><span class="ref-no">[117]</span> <strong>CRAIG: Coresets for Data-efficient Training</strong>（2020；International Conference on Machine Learning (ICML 2020)；Baharan Mirzasoleiman et al.；<a href="https://proceedings.mlr.press/v119/mirzasoleiman20a/mirzasoleiman20a.pdf">来源</a>；<a href="https://github.com/decile-team/cords">代码</a>）</li>
+<li id="ref-2516"><span class="ref-no">[118]</span> <strong>GLISTER: Generalization based Data Subset Selection for Efficient and Robust Learning</strong>（2021；Proceedings of the AAAI Conference on Artificial Intelligence (AAAI 2021)；Krishnateja Killamsetty et al.；<a href="https://cdn.aaai.org/ojs/16988/16988-13-20482-1-2-20210518.pdf">来源</a>；<a href="https://github.com/dssresearch/GLISTER">代码</a>）</li>
+<li id="ref-2517"><span class="ref-no">[119]</span> <strong>Dataset Condensation with Gradient Matching</strong>（2021；International Conference on Learning Representations (ICLR 2021)；Bo Zhao et al.；<a href="https://arxiv.org/pdf/2006.05929.pdf">来源</a>；<a href="https://github.com/VICO-UoE/DatasetCondensation">代码</a>）</li>
+<li id="ref-2518"><span class="ref-no">[120]</span> <strong>Dataset Distillation by Matching Training Trajectories</strong>（2022；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2022)；George Cazenavette et al.；<a href="https://arxiv.org/pdf/2203.11932.pdf">来源</a>；<a href="https://github.com/GeorgeCazenavette/mtt-distillation">代码</a>）</li>
+<li id="ref-2519"><span class="ref-no">[121]</span> <strong>DeepCore: A Comprehensive Library for Coreset Selection in Deep Learning</strong>（2022；International Conference on Database and Expert Systems Applications (DEXA 2022)；Chengcheng Guo et al.；<a href="https://arxiv.org/pdf/2204.08499.pdf">来源</a>；<a href="https://github.com/PatrickZH/DeepCore">代码</a>）</li>
+<li id="ref-2520"><span class="ref-no">[122]</span> <strong>Beyond Neural Scaling Laws: Beating Power Law Scaling via Data Pruning</strong>（2022；Advances in Neural Information Processing Systems (NeurIPS 2022)；Ben Sorscher et al.；<a href="https://proceedings.neurips.cc/paper_files/paper/2022/file/7b75da9b61eda40fa35453ee5d077df6-Paper-Conference.pdf">来源</a>；<a href="https://github.com/rgeirhos/dataset-pruning-metrics">代码</a>）</li>
+<li id="ref-2521"><span class="ref-no">[123]</span> <strong>Moderate Coreset: Coreset Selection for Classification via Moderate Examples</strong>（2023；International Conference on Learning Representations (ICLR 2023)；Xiaobo Xia et al.；<a href="https://storage.googleapis.com/lacuna-pdfs-lunar-airport-385023/pdfs/31/1f/311ff558997cfb4fce94c7a5688c10b46502599452d61bff86743da6e43ffe82.pdf">来源</a>；<a href="https://github.com/tmllab/2023_ICLR_Moderate-DS">代码</a>）</li>
+<li id="ref-2522"><span class="ref-no">[124]</span> <strong>Coverage-centric Coreset Selection for High Pruning Rates</strong>（2023；International Conference on Learning Representations (ICLR 2023)；Haizhong Zheng et al.；<a href="https://fanlai.me/assets/papers/coreset-iclr23.pdf">来源</a>；<a href="https://github.com/haizhongzheng/Coverage-centric-coreset-selection">代码</a>）</li>
+<li id="ref-2523"><span class="ref-no">[125]</span> <strong>TRAK: Attributing Model Behavior at Scale</strong>（2023；International Conference on Machine Learning (ICML 2023)；Sung‐Min Park et al.；<a href="https://proceedings.mlr.press/v202/park23c/park23c.pdf">来源</a>；<a href="https://github.com/MadryLab/trak">代码</a>）</li>
+<li id="ref-2524"><span class="ref-no">[126]</span> <strong>D² Pruning: Scalable Data Pruning for Vision-Language Pretraining</strong>（2024；International Conference on Learning Representations (ICLR 2024)；Adyasha Maharana et al.；<a href="https://proceedings.iclr.cc/paper_files/paper/2024/file/f646a4c970799f789e031b63161d018d-Paper-Conference.pdf">来源</a>；<a href="https://github.com/adymaharana/d2pruning">代码</a>）</li>
+<li id="ref-2525"><span class="ref-no">[127]</span> <strong>InfoBatch: Lossless Training Speed Up by Unbiased Dynamic Data Pruning</strong>（2024；International Conference on Learning Representations (ICLR 2024)；Ziheng Qin et al.；<a href="https://proceedings.iclr.cc/paper_files/paper/2024/file/ad1d7a4df30a9c0c46b387815a774a84-Paper-Conference.pdf">来源</a>；<a href="https://github.com/NUS-HPC-AI-Lab/InfoBatch">代码</a>）</li>
+<li id="ref-2526"><span class="ref-no">[128]</span> <strong>DsDm: Model-Aware Dataset Selection with Datamodels</strong>（2024；International Conference on Machine Learning (ICML 2024)；Logan Engstrom et al.；<a href="https://raw.githubusercontent.com/mlresearch/v235/main/assets/engstrom24a/engstrom24a.pdf">来源</a>）</li>
+<li id="ref-2527"><span class="ref-no">[129]</span> <strong>Mind the Boundary: Learning to Select Data for Boundary Reconstruction</strong>（2024；International Conference on Machine Learning (ICML 2024)；Shuo Yang et al.；<a href="https://raw.githubusercontent.com/mlresearch/v235/main/assets/yang24b/yang24b.pdf">来源</a>）</li>
+<li id="ref-2528"><span class="ref-no">[130]</span> <strong>DRoP: Distributionally Robust Data Pruning</strong>（2025；International Conference on Learning Representations (ICLR 2025)；Artem Vysogorets et al.；<a href="https://arxiv.org/pdf/2404.05579.pdf">来源</a>）</li>
+<li id="ref-2529"><span class="ref-no">[131]</span> <strong>Data Pruning by Information Maximization</strong>（2025；International Conference on Learning Representations (ICLR 2025)；Haoru Tan et al.；<a href="https://arxiv.org/pdf/2506.01701.pdf">来源</a>）</li>
+<li id="ref-2530"><span class="ref-no">[132]</span> <strong>Lightweight Dataset Pruning without Full Training</strong>（2025；International Conference on Machine Learning (ICML 2025)；Yeseul Cho et al.；<a href="https://raw.githubusercontent.com/mlresearch/v267/main/assets/cho25e/cho25e.pdf">来源</a>）</li>
+<li id="ref-2531"><span class="ref-no">[133]</span> <strong>Squeeze, Recover and Relabel: Dataset Condensation at ImageNet Scale From A New Perspective</strong>（2023；Advances in Neural Information Processing Systems (NeurIPS 2023)；Zeyuan Yin et al.；<a href="https://proceedings.neurips.cc/paper_files/paper/2023/file/e91fb65c6324a984ea9ef39a5b84af04-Paper-Conference.pdf">来源</a>；<a href="https://github.com/VILA-Lab/SRe2L">代码</a>）</li>
+<li id="ref-2532"><span class="ref-no">[134]</span> <strong>Efficient Dataset Distillation via Minimax Diffusion</strong>（2024；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2024)；Jianyang Gu et al.；<a href="https://arxiv.org/pdf/2311.15529.pdf">来源</a>；<a href="https://github.com/vimar-gu/MinimaxDiffusion">代码</a>）</li>
+<li id="ref-2533"><span class="ref-no">[135]</span> <strong>D4M: Dataset Distillation via Disentangled Diffusion Model</strong>（2024；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2024)；Duo Su et al.；<a href="https://openaccess.thecvf.com/content/CVPR2024/papers/Su_D4_Dataset_Distillation_via_Disentangled_Diffusion_Model_CVPR_2024_paper.pdf">来源</a>；<a href="https://github.com/suduo94/D4M">代码</a>）</li>
+<li id="ref-2534"><span class="ref-no">[136]</span> <strong>On the Diversity and Realism of Distilled Dataset: An Efficient Dataset Distillation Paradigm</strong>（2024；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2024)；Peng Sun et al.；<a href="https://openaccess.thecvf.com/content/CVPR2024/papers/Sun_On_the_Diversity_and_Realism_of_Distilled_Dataset_An_Efficient_CVPR_2024_paper.pdf">来源</a>；<a href="https://github.com/LINs-lab/RDED">代码</a>）</li>
+<li id="ref-2535"><span class="ref-no">[137]</span> <strong>Influence-Guided Diffusion for Dataset Distillation</strong>（2025；International Conference on Learning Representations (ICLR 2025)；Mingyang Chen et al.；<a href="https://proceedings.iclr.cc/paper_files/paper/2025/file/d3e50c185ced668857ba40a7d4a29efc-Paper-Conference.pdf">来源</a>；<a href="https://github.com/mchen725/DD_IGD">代码</a>）</li>
+<li id="ref-2536"><span class="ref-no">[138]</span> <strong>MGD³: Mode-Guided Dataset Distillation using Diffusion Models</strong>（2025；International Conference on Machine Learning (ICML 2025)；Jeffrey A. Chan-Santiago et al.；<a href="https://arxiv.org/pdf/2505.18963.pdf">来源</a>；<a href="https://github.com/jachansantiago/mode_guidance">代码</a>）</li>
+<li id="ref-2537"><span class="ref-no">[139]</span> <strong>D³HR: Diffusion-based Dataset Distillation via DDIM Inversion and High-Resolution Reconstruction</strong>（2025；International Conference on Machine Learning (ICML 2025)；Lin Zhao et al.；<a href="https://arxiv.org/pdf/2505.18399.pdf">来源</a>；<a href="https://github.com/lin-zhao-resoLve/D3HR">代码</a>）</li>
+<li id="ref-2538"><span class="ref-no">[140]</span> <strong>Dataset Distillation as Pushforward Optimal Quantization</strong>（2026；International Conference on Learning Representations (ICLR 2026)；Hong Ye Tan et al.；<a href="https://arxiv.org/pdf/2501.07681.pdf">来源</a>）</li>
+<li id="ref-2539"><span class="ref-no">[141]</span> <strong>DAP: Diffusion Models as Dataset Distillation Priors</strong>（2026；International Conference on Learning Representations (ICLR 2026)；Duo Su et al.；<a href="https://arxiv.org/pdf/2510.17421.pdf">来源</a>；<a href="https://github.com/suduo94/DAP">代码</a>）</li>
+<li id="ref-2540"><span class="ref-no">[142]</span> <strong>Learnability-Guided Diffusion for Dataset Distillation</strong>（2026；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2026)；Jeffrey A. Chan-Santiago et al.；<a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Chan-Santiago_Learnability-Guided_Diffusion_for_Dataset_Distillation_CVPR_2026_paper.pdf">来源</a>）</li>
+<li id="ref-2541"><span class="ref-no">[143]</span> <strong>Dataset Distillation by Influence Matching</strong>（2026；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2026)；Haoru Tan et al.；<a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Tan_Dataset_Distillation_by_Influence_Matching_CVPR_2026_paper.pdf">来源</a>；<a href="https://github.com/hrtan/infmatch">代码</a>）</li>
+<li id="ref-2542"><span class="ref-no">[144]</span> <strong>DMGD: Train-Free Dataset Distillation with Semantic-Distribution Matching in Diffusion Models</strong>（2026；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2026)；Qichao Wang et al.；<a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Wang_DMGD_Train-Free_Dataset_Distillation_with_Semantic-Distribution_Matching_in_Diffusion_Models_CVPR_2026_paper.pdf">来源</a>）</li>
+<li id="ref-2543"><span class="ref-no">[145]</span> <strong>RETA: Fixed Anchors Are Not Enough: Dynamic Retrieval and Persistent Homology for Dataset Distillation</strong>（2026；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2026)；Muquan Li et al.；<a href="https://arxiv.org/pdf/2602.24144.pdf">来源</a>）</li>
+<li id="ref-2544"><span class="ref-no">[146]</span> <strong>Rethinking Dataset Distillation for Classification: Do Distilled Sets Outperform Coresets?</strong>（2026；arXiv；Trisha Mittal et al.；<a href="https://arxiv.org/pdf/2606.18209.pdf">来源</a>）</li>
+<li id="ref-2545"><span class="ref-no">[147]</span> <strong>Rethinking Dataset Distillation: Hard Truths about Soft Labels</strong>（2026；IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR 2026)；Priyam Dey et al.；<a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Dey_Rethinking_Dataset_Distillation_Hard_Truths_about_Soft_Labels_CVPR_2026_paper.pdf">来源</a>）</li>
 </ul>
 </details>
 
