@@ -778,6 +778,110 @@ authors: [MaybeRichard]
 </ul>
 </details>
 
+## 10. 研究答疑
+
+下面的答疑只采用文中论文报告的实验、方法和作者讨论。论文没有验证的结论会明确标出证据边界。
+
+<details markdown="1">
+<summary>1. CFG 怎样影响分类增广中的标签可靠性、保真度和多样性</summary>
+
+论文并不支持把 CFG 的作用概括成“高 CFG 更有多样性，低 CFG 更遵循类别”。CFG 同时改变条件遵循程度和生成分布，具体方向还会受到条件形式、生成模型、下游训练方式和合成数据规模的影响。Augmented Conditioning 在 ImageNet-LT 的 90 类子集上测试了 CFG 2、4、7、10。大规模从头训练时，CFG 2 的整体准确率最高，达到 73.3%，CFG 10 为 66.9%，最困难的 few-shot 类别也有接近 10 个百分点的差距。论文把较低 CFG 带来的额外视觉变化视为大规模训练中的有效信号。小规模 few-shot 微调得到的结果相反，四个数据集都更偏向 CFG 10。合成图像很少时，类别可识别性比额外的视觉变化更重要。<a href="#ref-2296">Augmented Conditioning</a>
+
+DisCL 使用的是 image guidance，不等同于文本 CFG。它把图像引导强度做成连续谱。较弱的图像引导产生更容易学习、更加原型化的图像，但与真实数据的分布间隔更大。较强的图像引导更接近原始图像，但可能缺少变化，学习难度也更高。DisCL 在长尾任务中先使用较弱引导学习原型特征，再逐步提高引导强度。这里的结果说明，生成强度更适合按训练阶段和任务状态调度。<a href="#ref-2116">DisCL</a>
+
+CFG 本身不能保证一张图一定属于指定类别。论文采用了多层控制来降低标签错误的影响。
+
+1. 使用类别条件、文本条件或图像条件生成候选图像。
+2. 用分类器、视觉语言模型或任务模型检查图像和条件的一致性。
+3. 对不一致的样本进行删除、降权或重新标注，保留原始类别标签需要有额外证据。
+4. 在分割任务中检查图像和掩码的一致性，而不是只检查图像的外观。
+
+SDS 用扰动后的 CLIP 相似度筛除图像层面的异常样本，再用 Annotation Similarity Filter 检查合成掩码。UniDD 让任务模型参与生成评分、过滤和重标注。Preserve the Hard 直接保留原图中最不确定区域的像素和真实标签，只重绘其余上下文。它们共同说明，标签条件应被视为候选标签，生成后的验证是训练流程的一部分。<a href="#ref-2501">SDS</a> <a href="#ref-2502">UniDD</a> <a href="#ref-2295">Preserve the Hard</a>
+
+When Pretty Isn’t Useful 在固定 CFG 2.0 的条件下仍观察到，视觉质量和提示词遵循能力更高的模型，可能产生更窄、更审美化、覆盖不足的合成分布，真实测试集分类效果反而下降。这个结果把问题推进了一步。即使类别条件看起来遵循得很好，也仍然需要检查类内覆盖和下游效用。现有论文没有给出任何 CFG 值能够保证零标签错误的结论。<a href="#ref-2290">When Pretty Isn’t Useful</a>
+
+</details>
+
+<details markdown="1">
+<summary>2. 分割标注很少时，新的掩码从哪里来，怎样检查医学合理性</summary>
+
+论文中有几条不同的路线，依赖的标注假设并不相同。
+
+第一条路线是 mask-to-image。给定少量真实掩码，扩散模型据此生成图像。SDS 直接指出，这条路线的标注更容易保持准确，但掩码仍然需要人工提供，因此它缓解的是图像数量问题。第二条路线是 image-to-mask。先生成图像，再用模型预测掩码，不需要为每张合成图手工标注，但掩码会继承预测模型的错误。SDS 将 DiffuMask 和 DatasetDM 归入这类路线，并把生成后的图像筛选和掩码筛选分开处理。<a href="#ref-2501">SDS</a>
+
+DatasetDM 采用了第三条路线。它用不到原始数据百分之一的人工标注图像训练 perception decoder，再使用扩散模型和多样化提示生成图像，由 decoder 同时产生分割、深度和人体姿态等感知标注。论文在 VOC 和 COCO 上展示了少量人工标注加大量图像—标注对的效果。这个做法没有从零构造医学规则，而是把少量标注和预训练扩散表征结合起来学习标注生成器。<a href="#ref-2166">DatasetDM</a>
+
+UniDD 将类别、边界框和像素掩码都放入任务条件中，使用 task-specific prompt 和 task-specific guidance 生成不同任务的数据。MatchMask 也把掩码放在生成流程的中心。两者说明，图像和标注可以联合生成，但仍然需要任务模型或后处理来检查配对关系。<a href="#ref-2502">UniDD</a> <a href="#ref-2054">MatchMask</a>
+
+第四条路线不生成新的掩码。Preserve the Hard 先用可用真实数据训练一个分割器，根据像素不确定性保留最困难的区域，然后只对其余上下文做扩散式重绘，并在训练时忽略重绘像素的损失。这样新样本沿用真实掩码，避免了生成像素和原掩码发生错位。它在 Cityscapes、UAVID 和 BDD100K 的多个真实数据比例上验证了这一点。<a href="#ref-2295">Preserve the Hard</a>
+
+医学分割的解剖合理性仍然缺少由这些论文共同支持的通用保证。现有方法可以检查图像—掩码一致性、类别平衡、边界连续性或任务模型的不确定性，但这些检查不能自动推出病灶形态、器官拓扑和临床可解释性都正确。对于医学数据，论文提供的是候选生成和筛选机制，不能替代针对具体器官或病灶的规则验证。收录论文没有给出一种适用于所有医学分割任务的掩码生成规则。
+
+</details>
+
+<details markdown="1">
+<summary>3. 低数据或 few-shot 实验中，生成模型是否也只能使用那一小部分数据</summary>
+
+你的实验理解与这些论文的常见协议一致。下游模型使用低数据子集训练，验证集和测试集保持独立，测试图像不能参与生成器训练、提示设计、筛选阈值选择或重标注。Closed-Set Equivalence 在 CIFAR-10 中明确构造 1%、10%、50% 和 100% 的训练子集，并在独立测试集上比较真实增广和合成增广。Preserve the Hard 也对 Cityscapes 的 5%、10%、33% 和 100% 训练比例分别评估。<a href="#ref-2297">Closed-Set Equivalence</a> <a href="#ref-2295">Preserve the Hard</a>
+
+生成器不一定要从头开始只用这百分之一或百分之十训练。论文中有四种常见做法。
+
+1. 直接使用已经预训练的扩散模型，把少量真实图像、类别文本或增强后的真实图像作为条件。Augmented Conditioning 属于这类方法，它不微调整个扩散模型。
+2. 保留预训练扩散模型，只用少量标注训练任务相关的 decoder。DatasetDM 用不到百分之一的人工标注训练 perception decoder，再生成图像和感知标注。
+3. 在需要控制变量的研究中，明确从低数据子集训练闭集扩散模型。Closed-Set Equivalence 使用 EDM 或 DiT 做了这种对照，因此能测量生成器本身在低数据下的能力，但这不是所有增广方法的默认设置。
+4. 先利用预训练生成器形成候选池，再用可靠性、多样性和不确定性选出少量样本。Pool-Select-Refine 把生成、选择和 latent refinement 分开，直接报告了极低 IPC 下的设置。
+
+因此，低数据任务中通常把“生成器是否见过更多数据”和“下游模型是否只能看低数据子集”分开控制。若研究问题要求完全不使用外部图像，闭集训练或只用低数据微调才是对应协议。若目标是利用通用生成先验，预训练扩散模型就是方法的一部分。分割模型确实可能很弱，DatasetDM、SDS 和 Preserve the Hard 都通过任务 decoder、图像—标注筛选或不确定性区域保留来减轻这种依赖，但没有论文证明在任意极少标注条件下都能得到可靠分割器。
+
+</details>
+
+<details markdown="1">
+<summary>4. 数据集增强、数据集选择和合成数据筛选之间是什么关系</summary>
+
+数据集增强解决的是向训练集加入信息，数据集选择解决的是在候选样本中保留哪些信息。生成式增广把两者串在了一起。扩散模型先产生候选池，筛选方法再决定哪些候选样本进入真实训练集。这个流程的目标是让合成数据补充真实数据的缺口，和只追求合成集自身表现的 dataset distillation 目标不同。
+
+已有论文提供了可以直接借用的选择思想。
+
+1. 任务效用。GLISTER 用验证目标做双层选择，FROST 用真实数据梯度作为在线锚点，TATC 将合成样本的价值定义为相对于已有训练数据的训练效应和目标覆盖增益。
+2. 覆盖和冗余。CCS、D² Pruning、InfoMax 和 Synthetic-Selection 都说明单样本分数不够，需要同时考虑集合覆盖、邻域难度、样本间冗余或协方差结构。
+3. 可靠性门控。SDS 先筛图像，再筛掩码。Pool-Select-Refine 同时使用可靠性、多样性和不确定性。Post-Generation Curation 将 fidelity 和 diversity 放在同一个集合级选择准则里。
+4. 长尾约束。DRoP、Mind the Tail、CBDM 和 DisCL 的结果表明，选择或生成时需要显式检查尾类、稀有概念和类内覆盖，单纯按整体相似度排序可能进一步偏向 head 类。
+5. 成本约束。Cost-Audit 提醒，选择器的特征提取、梯度计算和多轮训练成本要和下游训练节省的成本一起计算。
+
+所以，生成后的选择和过滤确实是数据集选择思想在合成数据上的自然延伸。复用这些方法时，需要把目标改成条件边际效用。一个候选样本的价值取决于真实数据中已经覆盖了什么，也取决于已经选入的合成样本。数据集蒸馏论文提供生成先验、任务引导和极小预算实验，但它们的 IPC 指标不能直接和真实数据加合成数据的增广准确率混在一起比较。
+
+</details>
+
+<details markdown="1">
+<summary>5. 合成数据的隐私、记忆和长尾分布问题怎样处理</summary>
+
+隐私方面，收录论文给出的证据仍然有限。Augmented Conditioning 明确提醒，使用预训练扩散模型时，模型可能已经见过 ImageNet、COCO 等数据，存在训练数据记忆和泄漏风险。When Pretty Isn’t Useful 也把隐私和可用性作为采用合成数据的动机，但它的实验重点是视觉分布和真实测试集迁移。Selection Bias 论文指出合成数据仍可能发生隐私泄漏，并讨论了用分布代理和差分隐私机制减少真实数据暴露的方向。<a href="#ref-2296">Augmented Conditioning</a> <a href="#ref-2290">When Pretty Isn’t Useful</a> <a href="#ref-2513">When Sample Selection Bias</a>
+
+这些论文没有给出当前增广流程可以直接使用的隐私保证。它们没有系统报告成员推断、训练数据提取、近似重建或医学身份泄露攻击的统一结果。最近邻检查和分布距离只能发现一部分异常，不能替代攻击评测或差分隐私证明。因此，不能从“合成图像看起来不像原图”推出隐私安全。
+
+长尾分布方面，随机采样通常会保留生成器学到的类别先验，不能自动把尾类变成新的信息来源。CBDM 的出发点就是长尾先验会损害尾类生成质量，因此需要在扩散训练中调整类别平衡。Tail-SD 用布局和指令条件专门扩增 LVIS rare 类，DisCL 为尾类先使用较弱图像引导来增加原型和变化，再逐步提高引导强度。<a href="#ref-2301">CBDM</a> <a href="#ref-2186">Tail-SD</a> <a href="#ref-2116">DisCL</a>
+
+要让合成数据真正缓解长尾，论文通常同时改变三个环节。生成预算按类别重新分配，尾类获得更多候选。条件设计增加稀有实例、布局或上下文变化。生成后按类别一致性、类内覆盖和集合冗余筛选。CBDM 的类别平衡生成、Tail-SD 的 rare 目标条件、SDS 的类别平衡掩码筛选和 Mind the Tail 的稀有视觉概念覆盖分别对应这些环节。随机生成如果只增加每个类别的数量，却产生大量重复的 canonical mode，提升可能很小，甚至进一步强化已有偏差。<a href="#ref-2501">SDS</a> <a href="#ref-2507">Mind the Tail</a> <a href="#ref-2250">Post-Generation Curation</a>
+
+</details>
+
+<details markdown="1">
+<summary>6. 论文怎样处理保真度和多样性的冲突</summary>
+
+论文中的“保真度”至少包含三层含义。图像是否接近真实数据，图像是否遵循类别或条件，图像和标注是否一致。“多样性”也至少包含两层含义。样本是否覆盖真实数据中没有出现的区域，合成集合内部是否减少重复。把这些含义压成一个 FID 或一个 CFG 值，会丢失任务信息。
+
+Augmented Conditioning 从真实图像出发，使用 CutMix、Mixup、Dropout 等增强后的图像和文本共同作为条件。这样保留类别和领域信息，再把视觉变化引入扩散过程。TADA 也不追求任意增加变化，而是从训练早期的 slow-learnable 样本出发，生成保持特征但改变噪声的 faithful variations。<a href="#ref-2296">Augmented Conditioning</a> <a href="#ref-116">TADA</a>
+
+DisCL 把冲突转成训练课程。低 image guidance 产生更加原型化、容易学习的样本，适合训练早期和尾类 warm-up。随后提高 guidance，逐步加入更接近真实图像的样本。它没有假设一套固定的引导强度适用于整个训练过程。<a href="#ref-2116">DisCL</a>
+
+Post-Generation Curation、Pool-Select-Refine 和 FROST 把权衡放到生成之后。前者用 homogeneous 和 heterogeneous 真实子集分别估计 fidelity 与 diversity。Pool-Select-Refine 同时考察可靠性、特征空间多样性和预测不确定性。FROST 让真实数据的训练梯度随训练过程更新，用当前学习状态决定合成数据是否有用。这样做的共同点是，选择目标从“看起来最好”转向“对当前真实任务有增益”。<a href="#ref-2250">Post-Generation Curation</a> <a href="#ref-2505">Pool-Select-Refine</a> <a href="#ref-2291">FROST</a>
+
+集合级方法还会控制协方差和覆盖。Synthetic-Selection 的理论和实验表明，匹配真实数据的协方差结构可能比只匹配均值或单张图像相似度更重要。CCS、D² Pruning、InfoMax 和 TATC 则从覆盖、难度、冗余和条件边际收益的角度选集合。它们给出的共同经验是，少量高保真但高度重复的图像无法替代有结构变化的集合，少量看似新颖但标签不可靠的离群图像也不能直接加入训练。<a href="#ref-2504">High-dimensional Analysis of Synthetic Data Selection</a> <a href="#ref-2522">Coverage-centric Coreset Selection</a> <a href="#ref-2524">D² Pruning</a> <a href="#ref-2506">Training-Aware Target Coverage</a>
+
+The Unmet Promise 提供了一个重要参照。在 FGVC-Aircraft 上，同规模检索真实图像带来的线性探测提升明显超过合成图像。这个结果说明，保真度和多样性之外，还要问合成过程是否提供了真实数据检索无法提供的新信息。最终判断应放在真实测试集任务指标、类内覆盖、标签一致性和总计算成本上，不能由单一 CFG、FID 或审美分数决定。<a href="#ref-2298">The Unmet Promise</a>
+
+</details>
+
 <script>
 (function () {
   function openReference() {
