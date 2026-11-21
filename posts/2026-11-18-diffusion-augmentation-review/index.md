@@ -9,7 +9,7 @@ authors: [MaybeRichard]
 
 ## 摘要
 
-扩散模型让“用生成图像扩充训练集”从个别数据集上的技巧，变成了覆盖分类、分割、检测和表征学习的通用手段。本文在原有 95 条直接相关证据的基础上，加入 50 篇数据选择、数据剪枝和扩散式数据集蒸馏论文，去重后形成 141 条直接相关证据。新增条目均已在 Zotero 中核对作者、出版物、条目类型和 PDF 附件。文献按三条可交叉的轴线组织：主任务决定评价指标，数据条件决定生成要补的缺口，方法阶段决定生成器如何接入训练流程。
+扩散模型让“用生成图像扩充训练集”从个别数据集上的技巧，变成了覆盖分类、分割、检测和表征学习的通用手段。本文在原有 95 条直接相关证据的基础上，加入 50 篇数据选择、数据剪枝和扩散式数据集蒸馏论文，去重后形成 141 条直接相关证据。新增条目均已在 Zotero 中核对作者、出版物、条目类型和 PDF 附件，并完成逐篇全文核读。文献按三条可交叉的轴线组织：主任务决定评价指标，数据条件决定生成要补的缺口，方法阶段决定生成器如何接入训练流程。
 
 研究重心经历了三次转移。2023 年的工作证明，合成图像本身可以作为训练数据。2024 年转向在少样本条件下兼顾保真度与多样性。2025—2026 年进入任务感知阶段：让下游模型的反馈引导生成，或在生成后筛选真正有用的样本，并扩展到长尾识别和医学稠密预测。与此同时，数据选择和数据集蒸馏形成了独立的参照系，前者强调真实数据与合成候选之间的条件互补，后者强调用极少的合成样本替代大数据集。
 
@@ -454,6 +454,84 @@ authors: [MaybeRichard]
 
 对长尾和医学任务，还需要报告 head/medium/tail 或病灶大小分组的结果。<a href="#ref-2513">When Sample Selection Bias Precipitates Model Collapse</a> 说明，如果验证器只看到少量而且偏斜的真实锚点，选择过程可能会进一步删除全局上重要的尾部模式。因此，合成数据筛选应同时估计可靠性、不确定性、类内覆盖和集合冗余，不能只按单个样本的困难度排序。
 
+### 7.7 50篇论文逐篇核读
+
+本轮新增的 50 篇论文已经逐篇核对摘要、方法、实验、结论和局限性段落。下表记录每篇论文的核心方法、数据集与任务、正文明确报告的结果、作者讨论的局限性，以及代码或项目页状态。结果保留论文自身的实验协议，不把不同 IPC、剪枝率和下游模型的数字拼成排行榜。
+
+<details>
+<summary>主线论文（17篇）</summary>
+
+| 论文 | 方法 | 数据集与任务 | 结果 | 局限性 | 开源情况 |
+|:--|:--|:--|:--|:--|:--|
+| <a href="#ref-116">Do We Need All the Synthetic Data? Targeted Image Augmentation via Diffusion Models</a> | 训练早期按样本学习速度识别未学会样本，只对目标样本生成保持语义、改变噪声的 faithful 图像。 | CIFAR-10、CIFAR-100、Tiny-ImageNet，分类。 | 只增强约 30%–40% 的样本，最高提升 2.8 个百分点，并在部分设置中超过 SAM。 | 生成成本仍高，实验集中在自然图像分类，目标样本比例依赖训练早期诊断。 | [作者仓库](https://github.com/BigML-CS-UCLA/TADA) |
+| <a href="#ref-2500">Diffusion Curriculum: Synthetic-to-Real Data Curriculum via Image-Guided Diffusion</a> | 用图像引导扩散构造从合成到真实的连续谱，再按训练阶段选择 guidance level，先学易学原型，再学习接近真实的困难样本。 | ImageNet-LT、iWildCam、CIFAR100-LT、iNaturalist2018，长尾分类与低质量数据学习。 | ImageNet-LT 尾类准确率 4.4%→23.64%，整体准确率提升 4.02 个百分点，iWildCam 的 OOD 和 ID macro-accuracy 分别提升 2.7 和 2.1 个百分点。 | 依赖扩散模型和视觉文本过滤器，长尾提示主要由类别名生成，合成图中的目标位置和大小仍可能偏离真实数据。 | [作者仓库](https://github.com/tianyi-lab/DisCL) |
+| <a href="#ref-2501">A Training-free Synthetic Data Selection Method for Semantic Segmentation</a> | 先用扰动前后的 CLIP 相似度 PCS 过滤图像，再用类别均衡的 Annotation Similarity Filter 过滤图像—标注不一致样本。 | PASCAL VOC 2012、MS COCO 2017，语义分割。 | VOC 从 40k 选出 26k，mIoU 最高 62.5。COCO 从 80k 选出 50k，mIoU 最高 33.4，均优于使用全量合成数据的对照。 | CLIP 的语义偏差会影响筛选，方法仍依赖合成掩码质量，只在两个分割数据集上验证。 | [作者仓库](https://github.com/tanghao2000/SDS) |
+| <a href="#ref-2502">Towards Universal Dataset Distillation via Task-Driven Diffusion</a> | 先训练任务特定代理模型并生成任务对齐的上下文提示，再用任务驱动扩散生成类别、框和像素掩码。 | ImageNet-1K 分类、PASCAL VOC 检测与分割、MS COCO 检测与分割。 | ImageNet-1K 的 IPC=10 设置超过先前扩散蒸馏方法 6.1%，并建立 VOC 和 COCO 的检测、分割蒸馏基准。 | 代理模型和任务提示需要真实标注，跨任务生成和训练成本较高，检测与分割实验仍受数据集和任务模型限制。 | 论文页面未给出已确认的作者仓库 |
+| <a href="#ref-2503">Diffusion-Augmented Coreset Expansion for Scalable Dataset Distillation</a> | 先用信息量评分选取真实 patch 构成 coreset，再用潜在扩散模型做超分辨率和受控变体扩展。 | CIFAR-10/100、Tiny-ImageNet、ImageNette、ImageWoof、ImageNet-1K，分类蒸馏。 | 在多个大规模蒸馏基准上较现有方法提升超过 10%。ImageNette 的 ResNet-18 结果为 51.4%，高于 RDED 的 35.8%。 | patch 尺寸和扩散调用次数带来质量与成本权衡，论文称代码将发布，当前未确认公开仓库。 | 论文称代码将发布，当前未确认作者仓库 |
+| <a href="#ref-2504">High-dimensional Analysis of Synthetic Data Selection</a> | 从高维回归推导协方差偏移对泛化误差的影响，用真实数据协方差匹配合成数据集，而非只匹配均值或单样本相似度。 | CIFAR-10、ImageNet-100、RxRx1，覆盖 ResNet、Transformer、从头训练、蒸馏和微调。 | CIFAR-10 三种训练范式中，协方差匹配均超过中心匹配、K-means 和 DS3 等基线，真实数据上界仍更高。 | 理论主要针对线性模型和单类高维设置，极端长尾与细粒度多类情况需要进一步验证。 | [作者仓库](https://github.com/Rezaei-Parham/Synthetic-Selection) |
+| <a href="#ref-2250">Post-Generation Curation of Synthetic Images via Homogeneous-Heterogeneous Splitting</a> | 将真实数据按类内近邻划分为 canonical 的 Homogeneous 子集和非冗余的 Heterogeneous 子集，用 fidelity–diversity 分数抑制生成器偏好的 canonical 冗余。 | SVHN、CIFAR-10、Tiny-ImageNet、ImageNet-1K，另有 ImageNet-100 分类和 VOCaug 分割。 | CIFAR-10 可用约 30 万张精选合成图达到约 50 万张随机合成图的效果。方法在 ImageNet-1K、OOD 测试和 VOCaug 分割上持续改善。 | 依赖参考数据和生成器质量，方法目前面向单模态图像，分数权重和 HO/HE 划分仍需跨域调节。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2505">Pool-Select-Refine: Allocation-Aware Generative Dataset Distillation with Soft-Label-Guided Latent Refinement</a> | 先生成过量候选池，用教师可靠性、多样性和不确定性选择预算内样本，再用软标签在潜在空间细化。 | ImageWoof、ImageNette、ImageIDC、CIFAR-10/100、Tiny-ImageNet，分类蒸馏。 | 在 ImageWoof 的多个 IPC 和三种学生架构上持续优于对应 DiT、Minimax 基线，在低 IPC 设置收益更明显。 | 依赖固定教师，教师偏差会传入选择结果，并增加候选生成、特征提取和潜在细化成本。 | 论文称数据可按请求提供，当前未确认作者仓库 |
+| <a href="#ref-2291">Let Training Guide Selection: Online Synthetic Data Filtering via Real-Anchored Utility</a> | 用真实训练梯度的 EMA 作为锚点，先做批次效用门控，再对异常批次用 IQR 进行样本级过滤。 | CIFAR-100 分类、Spider 1.0 Text-to-SQL、工业广告重排序。 | 过滤约 20%–30% 合成数据后，CIFAR-100 相对全量合成训练在 FLUX、SANA、SD1.4 上分别提升 0.58、0.65、1.14 个百分点。 | 梯度对齐是局部效用代理，在线计算增加吞吐成本，需要一批真实训练数据，当前未确认作者代码。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2506">Training-Aware Target Coverage for Synthetic Data Selection</a> | 把样本价值定义为当前训练效应与目标覆盖增益的联合边际收益，随着已选集合变化重新计算。 | GSM8K 数学推理、SetFit 主观性分类和 CIFAR-10 图像实验。 | 在 Qwen2.5-Math-1.5B-Instruct 上，TATC 在多个预算下超过其他合成数据筛选方法，线性理论与文本、图像实验一致。 | 理论依赖线性近似，实验重点是文本推理，图像任务和高风险领域的有效性仍需扩大验证。 | [作者仓库](https://github.com/YangBa78/Training-Aware-Target-Coverage-for-Synthetic-Data-Selection) |
+| <a href="#ref-2507">Mind the Tail: Data Selection Through Sparse Concepts</a> | 用稀疏自编码器提取视觉概念，平衡概念覆盖和局部支持，补足尾部概念并避免选择孤立异常点。 | ImageNet-1K、NABirds、Waterbirds，以及 CC12M 视觉语言预训练。 | 在 ImageNet-1K 10% 选择预算上，零样本准确率提升 2.4 个百分点，并改善细粒度和伪相关场景的鲁棒性。 | 依赖基础视觉模型和 SAE 的概念质量，原方法主要选择真实样本，直接用于合成候选池仍需适配，当前未确认代码仓库。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2508">Informative Synthetic Data Generation for Thorax Disease Classification</a> | 用信息瓶颈损失训练样本重加权网络，在不依赖干净元数据或外部分类器的情况下提高合成样本权重质量。 | CheXpert、COVIDx、NIH ChestX-ray14，胸部疾病分类。 | CheXpert 上 ViT-B 的 mAUC 从 89.3 提升到 90.1，比使用合成数据的对照高 1.1 个百分点。对真实和合成数据同时重加权还能再提升 0.6 个百分点。 | 医学实验主要集中于胸片分类，信息瓶颈权重仍依赖训练分布和生成器，跨器官和分割任务尚未验证。 | [作者仓库](https://github.com/Statistical-Deep-Learning/IDS) |
+| <a href="#ref-2509">SynQuE: Estimating Synthetic Dataset Quality Without Annotations</a> | 在少量无标注真实数据下对候选合成数据集进行质量排序，比较 MDM、MMD、Proxy-A-Distance 等表征代理，并用 LLM rubric 构造 Lens。 | 情感分析、Text-to-SQL、网页导航和 ImageNet 图像分类。 | Text-to-SQL 中，选择排名靠前的三个合成数据集可将准确率从 30.4% 提升到 38.4%，平均增加 8.1 个百分点。 | 假设存在少量无标注真实数据，Lens 的收益受模型规模和 rubric 设计影响，细粒度单样本选择仍需研究。 | [作者仓库](https://github.com/r2llab/SynQuE) |
+| <a href="#ref-2510">Analyzing Diffusion Models on Synthesizing Training Datasets</a> | 通过从真实图像加噪再反向去噪，改变 reverse 起始步数，分析真实信息与扩散生成信息的比例。 | CIFAR-10，EDM 条件扩散模型和 ResNet-18 分类器。 | 同规模纯合成训练低于真实数据，反向步数增加会使样本集中到高密度 mode。真实与合成混合时，合成样本可作为决策边界附近的插值并提升性能。 | 主要是 CIFAR-10 的机制分析，未给出通用筛选器，外推到高分辨率和医学数据仍需验证。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2511">Are Coreset Selection Methods Worth Their Cost?</a> | 将选择时间、下游训练配方和精度放到同一 wall-clock 预算中，审计 11 种选择器和实现正确性。 | CIFAR-10、Tiny-ImageNet、CUB-200、ImageNet-1K，附加 Retinal OCT。 | 在 CIFAR-10 和 Tiny-ImageNet 的预算锚点上，获胜者主要是类别均衡随机、重复随机或全量训练。ImageNet-1K 近成本比较中，减少全量训练 epoch 通常优于复杂选择器。 | 结论依赖统一的训练和计时协议，选择成本受数据规模和硬件影响，不能直接迁移到生成候选池。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2512">Unifying Dataset Pruning and Distillation for Efficient Large-scale Compression</a> | 建立统一数据压缩基准，比较 pruning、soft-label distillation 和 hard-label PCA，PCA 依次执行 Prune、Combine、Augment。 | ImageNet-1K、ImageNet 子集，分类压缩。 | 在小数据预算和硬标签协议下，剪枝通常优于蒸馏。ImageNet-1K 上 PCA 在 IPC 10/50/100 的 ResNet-18 结果为 25.6/42.1/48.6。 | 软标签会掩盖样本质量差异，PCA 的模块选择和增强策略仍需调整，论文主要覆盖分类。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2513">When Sample Selection Bias Precipitates Model Collapse</a> | 分析局部且有偏的验证参考如何把数据选择变成选择偏差，并用多 silo 的 Wasserstein proxy reference 缓解尾部模式流失。 | CIFAR-10、STL-10、CelebA，递归合成和选择实验。 | 单一局部参考会快速删除全局尾部模式并产生 diversity decay，协作式 proxy reference 可改善 FID、precision 和 recall。 | 关注递归生成和分布崩塌，proxy reference 需要多方统计协作，尚未直接评估医学图像分类或分割。 | 当前未确认作者公开仓库 |
+
+</details>
+
+<details>
+<summary>方法基线（17篇）</summary>
+
+| 论文 | 方法 | 数据集与任务 | 结果 | 局限性 | 开源情况 |
+|:--|:--|:--|:--|:--|:--|
+| <a href="#ref-2514">Data Shapley: Equitable Valuation of Data for Machine Learning</a> | 用数据点加入训练集合后对预测性能的边际贡献定义 Shapley value，并用 Monte Carlo 和梯度估计加速。 | 生物医学、图像和合成数据任务。 | 比 leave-one-out 和 leverage score 更能发现有价值数据，低值样本集中包含异常与损坏样本，高值样本可指导后续采集。 | 精确 Shapley 计算昂贵，估计值依赖模型、任务和采样预算。 | [作者仓库](https://github.com/amiratag/DataShapley) |
+| <a href="#ref-2515">CRAIG: Coresets for Data-efficient Training</a> | 用子模函数选择带权 coreset，使子集梯度近似完整数据梯度，并给出增量梯度优化的收敛保证。 | 逻辑回归和深度神经网络分类实验。 | 逻辑回归最高约 6 倍加速，深度网络最高约 3 倍，同时保持接近完整数据的解。 | 理论保证主要针对凸优化，梯度相似性未必等同于合成增广的长期任务收益。 | [作者仓库](https://github.com/decile-team/cords) |
+| <a href="#ref-2516">GLISTER: Generalization based Data Subset Selection for Efficient and Robust Learning</a> | 把数据选择写成以验证集对数似然为目标的双层优化，并提供在线选择和主动学习版本。 | 分类、标签噪声、不平衡和 batch active learning，多种浅层与深度模型。 | 在效率、鲁棒学习和主动学习实验中优于多种选择基线。 | 需要有代表性的验证集，在线双层优化和模型更新成本较高。 | [作者仓库](https://github.com/dssresearch/GLISTER) |
+| <a href="#ref-2517">Dataset Condensation with Gradient Matching</a> | 直接匹配真实数据和合成数据的网络梯度，构造可用于从头训练的紧凑集合。 | MNIST、Fashion-MNIST、CIFAR-10/100 等视觉基准，并扩展到持续学习和神经架构搜索。 | 在小规模数据集上超过先前蒸馏方法，持续学习和 NAS 设置也获得增益。 | 梯度匹配依赖网络架构和训练配方，图像优化成本随分辨率与 IPC 增长。 | [作者仓库](https://github.com/VICO-UoE/DatasetCondensation) |
+| <a href="#ref-2518">Dataset Distillation by Matching Training Trajectories</a> | 预先保存真实数据训练的专家轨迹，优化合成数据使学生网络跨多个训练步骤接近真实轨迹。 | CIFAR-10/100、Tiny-ImageNet 和高分辨率视觉蒸馏设置。 | 在低 IPC 和高分辨率蒸馏中优于早期方法，能够使用轨迹匹配扩展到更大图像。 | 需要存储专家轨迹，构造成本高，并可能对教师架构和评测网络产生依赖。 | [作者仓库](https://github.com/GeorgeCazenavette/mtt-distillation) |
+| <a href="#ref-2519">DeepCore: A Comprehensive Library for Coreset Selection in Deep Learning</a> | 提供统一的 coreset 选择库，覆盖随机、几何、梯度、训练动态和验证集选择方法。 | CIFAR-10、ImageNet。 | 不同方法在不同设置中各有优势，但随机选择依然是强基线。 | 它是基准库和经验研究，结果高度依赖统一实现、预算和训练配置。 | [作者仓库](https://github.com/PatrickZH/DeepCore) |
+| <a href="#ref-2520">Beyond Neural Scaling Laws: Beating Power Law Scaling via Data Pruning</a> | 研究数据剪枝指标与数据规模缩放规律，提出便宜的自监督剪枝指标。 | CIFAR-10、SVHN、ImageNet，十种剪枝指标。 | 高质量剪枝在实验中产生超越幂律的误差缩放，新的自监督指标接近强监督指标。 | 许多强指标需要全量标签或高计算量，剪枝排序质量随数据集和模型变化。 | [作者仓库](https://github.com/rgeirhos/dataset-pruning-metrics) |
+| <a href="#ref-2521">Moderate Coreset: Coreset Selection for Classification via Moderate Examples</a> | 不选最容易或最困难样本，而选择分数接近中位数的 moderate examples，减少冗余和噪声。 | 图像分类的 CIFAR 和 ImageNet 类基准。 | 在多个数据选择场景中超过既有选择方法，作为不依赖场景先验的强基线。 | 中位数分数只是通用代理，不能单独表达尾类覆盖或下游任务效用。 | [作者仓库](https://github.com/tmllab/2023_ICLR_Moderate-DS) |
+| <a href="#ref-2522">Coverage-centric Coreset Selection for High Pruning Rates</a> | 将样本重要性和分布覆盖联合建模，提出 coverage-centric coreset，避免高剪枝率下覆盖坍塌。 | 五个视觉数据集，包含 CIFAR-10 等分类基准。 | 90% 剪枝时，CIFAR-10 比此前方法至少高 19.56 个百分点，比随机选择高 7.04 个百分点。 | 需要定义参考分布和距离度量，覆盖与任务重要性之间的权重仍需调节。 | [作者仓库](https://github.com/haizhongzheng/Coverage-centric-coreset-selection) |
+| <a href="#ref-2523">TRAK: Attributing Model Behavior at Scale</a> | 用随机投影后的预条件核近似大规模数据归因，估计训练点对模型行为和预测的贡献。 | ImageNet 分类、CLIP、BERT 和 mT5。 | 用少量模型达到需要数千模型的归因效果，支持图像、视觉语言和语言模型。 | 需要可微模型和多个训练检查点，归因结果依赖投影、模型状态和目标任务。 | [作者仓库](https://github.com/MadryLab/trak) |
+| <a href="#ref-2524">D² Pruning: Scalable Data Pruning for Vision-Language Pretraining</a> | 将数据表示为图，通过邻域消息传递同时更新 difficulty 和 diversity，再用图采样选择 coreset。 | 视觉分类、视觉语言预训练和 NLP 数据过滤。 | 在低到中等剪枝率优于既有方法，并提升大规模多模态数据的多样性和泛化。 | 构图和消息传递增加计算量，邻域定义对跨域数据影响明显。 | [作者仓库](https://github.com/adymaharana/d2pruning) |
+| <a href="#ref-2525">InfoBatch: Lossless Training Speed Up by Unbiased Dynamic Data Pruning</a> | 按损失分布动态随机剪枝低信息样本，并对保留样本重缩放梯度以保持无偏。 | CIFAR-10/100、ImageNet-1K、ADE20K、MAE、扩散模型预训练和 LLaMA 指令微调。 | 分类、分割和预训练中可节省约 40% 总成本，MAE 和扩散训练分别节省 24.8% 和 27%，指令微调最高约 10 倍加速。 | 依赖在线损失估计和重加权，极端长尾、噪声标签和生成数据的无偏条件仍需单独验证。 | [作者仓库](https://github.com/NUS-HPC-AI-Lab/InfoBatch) |
+| <a href="#ref-2526">DsDm: Model-Aware Dataset Selection with Datamodels</a> | 把数据选择直接写成给定任务、学习算法和候选数据时最大化目标模型性能的优化问题。 | 语言模型训练与多个 held-out NLP 任务。 | 相对质量启发式选择，目标任务代表性选择可带来约 2 倍 compute multiplier。 | 需要目标任务和训练算法，选择结果难以脱离具体模型迁移。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2527">Mind the Boundary: Learning to Select Data for Boundary Reconstruction</a> | 用完整数据训练的模型决策边界指导几何 coreset 构造，选择可重建边界的样本。 | ImageNet-1K 与多个视觉分类基准。 | ImageNet-1K 剪枝 50% 时准确率损失低于 1%，并表现出跨架构迁移能力。 | 需要训练完整模型并提取边界，边界质量和类别不平衡会影响选择。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2528">DRoP: Distributionally Robust Data Pruning</a> | 理论分析类别剪枝比例造成的分类偏置，并在类内随机剪枝中加入分布鲁棒的保留比例。 | 标准视觉分类基准，报告平均性能和 worst-class 表现。 | 随着剪枝比例增加，worst-class 鲁棒性持续改善，同时平均性能下降保持可控。 | 类别比例设计依赖分布假设，混合长尾与合成标签噪声时需要重新校准。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2529">Data Pruning by Information Maximization</a> | 把单样本重要性减去集合内部相似性冗余，形成可扩展的离散二次规划和梯度求解器。 | CIFAR-100、ImageNet-1K、Flickr30K、MMLU、TydiQA、BBH。 | 在图像分类、视觉语言预训练和指令微调的 10% 或 5% 预算下均优于多种剪枝基线。 | 相似度矩阵和分块求解仍有成本，重要性分数与相似性权重需要按任务调节。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2530">Lightweight Dataset Pruning without Full Training</a> | 用早期训练的 difficulty 和 uncertainty 构造 DUAL score，并用 Beta 分布适配极端剪枝比例。 | CIFAR 系列、ImageNet-1K，包含标签噪声、图像损坏和架构迁移。 | ImageNet-1K 在 90% 剪枝时达到约 60% 测试准确率，剪枝时间降至既有方法的 66%，CIFAR 时间降至约 15%。 | 早期模型和不确定性代理可能在分布偏移或生成图像上失真，极端剪枝仍会出现性能拐点。 | 当前未确认作者公开仓库 |
+
+</details>
+
+<details>
+<summary>扩散式数据集蒸馏（16篇）</summary>
+
+| 论文 | 方法 | 数据集与任务 | 结果 | 局限性 | 开源情况 |
+|:--|:--|:--|:--|:--|:--|
+| <a href="#ref-2531">Squeeze, Recover and Relabel: Dataset Condensation at ImageNet Scale From A New Perspective</a> | 将蒸馏拆成 Squeeze、Recover、Relabel 三阶段，解耦模型训练、图像恢复与标签重标注。 | Tiny-ImageNet、ImageNet-1K。 | 50 IPC 时 Tiny-ImageNet 和 ImageNet-1K 分别达到 42.5% 和 60.8%，数据合成速度较 MTT 约快 52 倍和 16 倍。 | 恢复和重标注依赖教师模型，IPC、分辨率与标签存储会影响压缩收益。 | [作者仓库](https://github.com/VILA-Lab/SRe2L) |
+| <a href="#ref-2532">Efficient Dataset Distillation via Minimax Diffusion</a> | 在扩散生成中加入代表性和多样性的 minimax 控制，减少逐样本优化。 | ImageWoof 为主，并覆盖 ImageNette、ImageNet 子集和其他蒸馏基准。 | ImageWoof 100 IPC 的蒸馏时间少于既有方法二十分之一，同时取得更高验证性能，代码和生成数据公开。 | 需要针对数据集微调 minimax 目标，生成器质量和 IPC 预算仍决定最终表现。 | [作者仓库](https://github.com/vimar-gu/MinimaxDiffusion) |
+| <a href="#ref-2533">D4M: Dataset Distillation via Disentangled Diffusion Model</a> | 用潜在扩散模型保持真实和合成图像空间一致，并把标签信息融入类别 prototype。 | ImageNet-1K、CIFAR-10、Tiny-ImageNet 等分类蒸馏基准。 | 在多数设置中超过已有方法，并改善跨架构泛化，避免为不同评测网络重复生成数据。 | 依赖预训练潜在扩散先验和类别 prototype，复杂任务与医学图像未验证。 | [作者仓库](https://github.com/suduo94/D4M) |
+| <a href="#ref-2534">On the Diversity and Realism of Distilled Dataset: An Efficient Dataset Distillation Paradigm</a> | 从 realism、diversity、efficiency 三个目标重新设计蒸馏流程，避免高分辨率像素级双层优化。 | ImageNet-1K 及多种模型架构和 IPC 设置。 | ImageNet-1K 的 10 IPC 在单张 RTX 4090 上约 7 分钟达到 ResNet-18 42% 验证准确率，基线约 21% 且需要约 6 小时。 | 真实性与表达能力仍有张力，较小 IPC 和不同数据域的稳定性需要进一步验证。 | [作者仓库](https://github.com/LINs-lab/RDED) |
+| <a href="#ref-2535">Influence-Guided Diffusion for Dataset Distillation</a> | 把轨迹影响函数转为扩散采样引导，提升样本训练影响并加入多样性约束，不重新训练扩散模型。 | ImageNet-1K、ImageNet-100、ImageNette、ImageWoof、CIFAR-10。 | ImageNet-1K 50 IPC 达到 60.3%，扩散蒸馏结果优于对应基线。 | 影响函数近似和采样引导增加计算量，效果依赖教师轨迹和扩散特征。 | [作者仓库](https://github.com/mchen725/DD_IGD) |
+| <a href="#ref-2536">MGD³: Mode-Guided Dataset Distillation using Diffusion Models</a> | 先发现类内 mode，再做 mode guidance 增加类内变化，最后停止 guidance 以降低伪影，不微调扩散模型。 | ImageNette、ImageIDC、ImageNet-100、ImageNet-1K、CIFAR-10、ImageWoof。 | 相对基线在 ImageNette、ImageIDC、ImageNet-100、ImageNet-1K 分别提升 4.4、2.9、1.6、1.6 个百分点。 | mode 发现和 guidance 超参数依赖特征空间，非视觉任务和更复杂标签结构未验证。 | [作者仓库](https://github.com/jachansantiago/mode_guidance) |
+| <a href="#ref-2537">D³HR: Diffusion-based Dataset Distillation via DDIM Inversion and High-Resolution Reconstruction</a> | 用 DDIM inversion 把真实数据 latent 映射到高正态性高斯域，再用一致性采样生成代表性 distilled latent。 | CIFAR-10、Tiny-ImageNet、ImageNet-1K、ImageNette、ImageWoof。 | 在多种数据集、IPC 和学生架构上优于扩散蒸馏基线，尤其改善高分辨率代表性。 | 依赖 VAE latent 分布和 inversion 质量，采样策略与模型架构的迁移仍有成本。 | [作者仓库](https://github.com/lin-zhao-resoLve/D3HR) |
+| <a href="#ref-2538">Dataset Distillation as Pushforward Optimal Quantization</a> | 把解耦蒸馏改写为 latent space 的最优量化，用聚类点和权重近似真实分布并由扩散模型解码。 | ImageNet-1K 及 ImageNette、ImageWoof 等子集。 | 与 D4M 使用相同模型时获得更好的性能和跨模型泛化，在高 IPC 设置达到或接近 SOTA。 | 理论一致性基于扩散先验和量化假设，其他蒸馏框架及非视觉任务仍未覆盖。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2539">DAP: Diffusion Models as Dataset Distillation Priors</a> | 把扩散模型的代表性先验写成真实—合成特征的 Mercer kernel 能量，在反向扩散中做 training-free guidance。 | ImageNet-1K、ImageNette、ImageWoof、ImageIDC、Tiny-ImageNet。 | 在高保真、跨架构泛化和域偏移设置中优于扩散蒸馏基线，且不需要重新训练生成器。 | 依赖特征核和参考数据，跨生成模型和非视觉数据的扩展仍属未来工作。 | [作者仓库](https://github.com/suduo94/DAP) |
+| <a href="#ref-2106">IMS3: Breaking Distributional Aggregation in Diffusion-Based Dataset Distillation</a> | 用 inversion-matching 扩大分布覆盖，再用 selective subgroup sampling 选取代表且有区分度的合成子集。 | ImageWoof、ImageNette、ImageIDC、ImageNet-100、ImageNet-1K。 | 在多个数据集、IPC 和架构设置下达到扩散蒸馏 SOTA，重点改善边界和类间分离。 | 需要微调 inversion 过程和子群采样，筛选超参数与任务模型仍有依赖。 | [作者仓库](https://github.com/Westlake-AGI-Lab/IMS3) |
+| <a href="#ref-2540">Learnability-Guided Diffusion for Dataset Distillation</a> | 分阶段构造合成集，用当前模型的 learnability 选择互补样本，并用 reference validity 防止无效或异常样本。 | ImageNet-1K、ImageNette、ImageWoof。 | 将样本信号冗余降低 39.1%，ImageNet-1K、ImageNette、ImageWoof 分别达到 60.1%、87.2%、72.9%。 | 需要多阶段训练和 reference model，方法仍以分类蒸馏为主，公开的是作者项目页。 | 论文提供作者项目页，未确认 GitHub 仓库 |
+| <a href="#ref-2541">Dataset Distillation by Influence Matching</a> | 用可微的 sample-level influence estimator 匹配合成集与真实集对最终收敛参数的影响，采用一阶展开避免逆 Hessian。 | Tiny-ImageNet、CIFAR-10、ImageNet-1K、Flickr30K 视觉语言蒸馏。 | Tiny-ImageNet IPC=10 达到 31.5%，比 NCFM 高 4.7 个百分点。Flickr30K 的图文检索平均结果比 NCFM 高 2.5%。 | 影响估计仍依赖训练轨迹和一阶近似，长训练、检测分割和医学任务未覆盖。 | [作者仓库](https://github.com/hrtan/infmatch) |
+| <a href="#ref-2542">DMGD: Train-Free Dataset Distillation with Semantic-Distribution Matching in Diffusion Models</a> | 将语义匹配和 OT 分布匹配解耦，使用动态 guidance、distribution approximate matching 和 greedy progressive matching，训练免费。 | ImageNet-Woof、ImageNet-Nette、ImageNet-1K。 | 相对需要额外微调的 SOTA，三个数据集的平均准确率分别提升约 2.1、5.4、2.4 个百分点。 | 语义似然和 OT 计算仍依赖预训练扩散与特征表示，主要验证分类蒸馏。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2543">RETA: Fixed Anchors Are Not Enough: Dynamic Retrieval and Persistent Homology for Dataset Distillation</a> | 用动态检索连接选择匹配复杂度合适的真实 patch，再用 persistent homology 对齐真实和合成特征图的拓扑。 | CIFAR-100、Tiny-ImageNet、ImageNet-1K 及多个 ImageNet 子集。 | ImageNet-1K ResNet-18、50 IPC 达到 64.3%，比最佳先前方法高 3.1 个百分点，并在 CNN 与 ViT 学生上保持优势。 | 依赖冻结教师、每类检索池和拓扑超参数，复杂度代理仍是手工设计，当前未确认作者代码。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2544">Rethinking Dataset Distillation for Classification: Do Distilled Sets Outperform Coresets?</a> | 统一七种 DD、四种 coreset 和三种标签监督协议，分离蒸馏图像本身的质量与评测协议的影响。 | ImageNet-1K、ImageNet-100、ImageNette。 | 在大规模数据集上，许多 DD 方法与随机子集相当或弱于 coreset，构造成本更高，coreset 对原始分布的覆盖更好。 | 研究重点是分类蒸馏协议审计，结论受标签监督、IPC 和构造预算影响，不能直接外推到增广场景。 | 当前未确认作者公开仓库 |
+| <a href="#ref-2545">Rethinking Dataset Distillation: Hard Truths about Soft Labels</a> | 比较 soft-label、teacher-supervised 和 hard-label 协议，提出 compute-aware CAD-Prune 与 CA2D，考察质量、规模和计算的交互。 | ImageNet-1K、ImageNet-100、ImageNette，并含小规模视觉基准。 | 软标签下数据质量差异被教师信息掩盖，硬标签下 RDED 可靠超过随机但仍可能落后强 coreset，CA2D 在 ImageNet-1K 多个 IPC 上优于对照。 | 主要覆盖分类，软标签协议本身不适合直接衡量样本质量，非视觉任务和真实增广设定仍需验证。 | 当前未确认作者公开仓库 |
+
+</details>
+
 ## 8. 局限与开放问题
 
 ### 8.1 共同局限
@@ -494,7 +572,7 @@ authors: [MaybeRichard]
 <details markdown="1">
 <summary>A. 文献范围与统计口径（点击展开）</summary>
 
-本文的文献来自作者整理的 Zotero 文献库「合成图像用于数据增强」子集，以及更广义的 Diffusion Model 子集中与图像合成增广直接相关的少量补充。原主体证据为 95 条，新增的数据选择与数据集蒸馏清单包含 50 篇，其中 4 篇与原文献重合，因此去重后共有 141 条主体记录。新增清单按直接主线 17 篇、方法基线 17 篇和扩散式数据集蒸馏 16 篇归类。原主体中 93 篇已读取全文 PDF；新增 50 篇已完成作者、出版物、条目类型和 PDF 可读性核验，本文先按已审计证据纳入，不把它们全部计入“全文已读”统计。参考文献列表共 147 条，包括 6 条背景文献和 141 条主体记录。
+本文的文献来自作者整理的 Zotero 文献库「合成图像用于数据增强」子集，以及更广义的 Diffusion Model 子集中与图像合成增广直接相关的少量补充。原主体证据为 95 条，新增的数据选择与数据集蒸馏清单包含 50 篇，其中 4 篇与原文献重合，因此去重后共有 141 条主体记录。新增清单按直接主线 17 篇、方法基线 17 篇和扩散式数据集蒸馏 16 篇归类。原主体中 93 篇已读取全文 PDF；新增 50 篇已完成作者、出版物、条目类型、PDF 可读性和全文证据核对。与原主体记录去重后，当前共有 139 条唯一记录完成全文核读。参考文献列表共 147 条，包括 6 条背景文献和 141 条主体记录。
 
 - 按质量筛选规则，Sensors 2026 的 Propose-and-Select，以及 ADuLTS、Synthetic Imagery 和 Triple-Prompt 未纳入核心统计。
 - 原 95 条主体证据的下游任务按单一主类统计：分类 48 条、目标检测 3 条、分割与稠密预测 26 条、表征学习 2 条、数据集蒸馏 8 条、综述与评测 6 条，另有 WILD-Diffusion、Sketch2CT 两条生成器与领域基础记录。新增 50 篇选择与蒸馏论文采用第 7.6 节的三组统计，避免把数据选择基线和普通增广结果直接混为一个任务总数。
