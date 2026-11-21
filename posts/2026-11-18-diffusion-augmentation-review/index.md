@@ -631,6 +631,8 @@ authors: [MaybeRichard]
 
 ## 参考文献
 
+将鼠标移到正文中的文献链接上，可以预览对应论文第一页的缩略图和标题。点击链接仍会跳转到文末参考文献。
+
 <details class="references-fold">
 <summary>参考文献（点击展开）</summary>
 
@@ -903,5 +905,147 @@ The Unmet Promise 提供了一个重要参照。在 FGVC-Aircraft 上，同规�
     if (link) window.setTimeout(openReference, 0);
   });
   window.addEventListener('DOMContentLoaded', openReference);
+})();
+</script>
+
+<style>
+.ref-hover-card {
+  position: fixed;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: 128px minmax(190px, 1fr);
+  gap: 12px;
+  width: min(430px, calc(100vw - 24px));
+  padding: 10px;
+  border: 1px solid #d8dee8;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(28, 43, 58, .18);
+  color: #243447;
+  pointer-events: auto;
+}
+.ref-hover-card[hidden] { display: none; }
+.ref-hover-media {
+  width: 128px;
+  height: 176px;
+  overflow: hidden;
+  border: 1px solid #e2e7ee;
+  border-radius: 4px;
+  background: #f5f7fa;
+}
+.ref-hover-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #fff;
+}
+.ref-hover-missing {
+  display: grid;
+  height: 100%;
+  padding: 12px;
+  place-items: center;
+  color: #657487;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+.ref-hover-info { min-width: 0; }
+.ref-hover-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.ref-hover-note {
+  margin-top: 8px;
+  color: #657487;
+  font-size: 12px;
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .ref-hover-card { grid-template-columns: 96px minmax(150px, 1fr); }
+  .ref-hover-media { width: 96px; height: 136px; }
+}
+</style>
+
+<script>
+(function () {
+  var card;
+  var hideTimer;
+
+  function getCard() {
+    if (card) return card;
+    card = document.createElement('div');
+    card.className = 'ref-hover-card';
+    card.hidden = true;
+    card.setAttribute('role', 'tooltip');
+    card.innerHTML = '<div class="ref-hover-media"><img class="ref-hover-thumb" alt=""><div class="ref-hover-missing" hidden>本地暂未找到 PDF 缩略图</div></div><div class="ref-hover-info"><div class="ref-hover-title"></div><div class="ref-hover-note">论文第一页缩略图。点击正文引用可跳转到文末参考文献。</div></div>';
+    document.body.appendChild(card);
+    card.addEventListener('pointerenter', function () { window.clearTimeout(hideTimer); });
+    card.addEventListener('pointerleave', scheduleHide);
+    return card;
+  }
+
+  function scheduleHide() {
+    window.clearTimeout(hideTimer);
+    hideTimer = window.setTimeout(function () {
+      if (card) card.hidden = true;
+    }, 160);
+  }
+
+  function show(link) {
+    if (!link || link.closest('.refs')) return;
+    var href = link.getAttribute('href') || '';
+    if (href.indexOf('#ref-') !== 0) return;
+    var id = href.slice(1);
+    var reference = document.getElementById(id);
+    if (!reference) return;
+    var current = getCard();
+    var image = current.querySelector('.ref-hover-thumb');
+    var missing = current.querySelector('.ref-hover-missing');
+    var title = current.querySelector('.ref-hover-title');
+    var heading = reference.querySelector('strong');
+    title.textContent = (heading || reference).textContent.trim();
+    image.hidden = false;
+    missing.hidden = true;
+    image.src = 'ref-thumbnails/' + id + '.jpg';
+    image.onload = function () {
+      image.hidden = false;
+      missing.hidden = true;
+    };
+    image.onerror = function () {
+      image.hidden = true;
+      missing.hidden = false;
+    };
+    current.hidden = false;
+    var rect = link.getBoundingClientRect();
+    var width = current.offsetWidth;
+    var height = current.offsetHeight;
+    var left = Math.min(Math.max(12, rect.left), window.innerWidth - width - 12);
+    var top = rect.bottom + 10;
+    if (top + height > window.innerHeight - 12) top = rect.top - height - 10;
+    current.style.left = Math.max(12, left) + 'px';
+    current.style.top = Math.max(12, top) + 'px';
+    window.clearTimeout(hideTimer);
+  }
+
+  document.addEventListener('pointerover', function (event) {
+    var link = event.target.closest && event.target.closest('a[href^="#ref-"]');
+    if (link) show(link);
+  });
+  document.addEventListener('pointerout', function (event) {
+    var link = event.target.closest && event.target.closest('a[href^="#ref-"]');
+    if (link && (!event.relatedTarget || !link.contains(event.relatedTarget))) scheduleHide();
+  });
+  document.addEventListener('focusin', function (event) {
+    var link = event.target.closest && event.target.closest('a[href^="#ref-"]');
+    if (link) show(link);
+  });
+  document.addEventListener('focusout', scheduleHide);
+  window.addEventListener('scroll', scheduleHide, { passive: true });
 })();
 </script>
